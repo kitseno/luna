@@ -7,7 +7,7 @@ import {APP} from '../constants'
 
 import { logout } from '../../services/AuthService'
 
-import { Toast } from "../toaster";
+import { Toast } from "../toaster"
 
 class PageHeader extends React.Component {
 
@@ -53,8 +53,11 @@ class PageHeader extends React.Component {
                           </button>
                           <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <a className="dropdown-item disabled" href="#"><small>{"Signed in as " + this.props.userName}</small></a>
-                            <a className="dropdown-item" href="/account">Account</a>
+                            <Link className="dropdown-item" to="/account">Account</Link>
+                            <Link className="dropdown-item" to="/profile">Profile</Link>
                             <div className="dropdown-divider"></div>
+                            {this.props.isAdmin && <Link className="dropdown-item" to="/admin"><i className="fas fa-sign-in-alt mr-2"></i>Go to Admin</Link>}
+                            {this.props.isAdmin && <div className="dropdown-divider"></div>}
                             <button className="dropdown-item" onClick={this.handleLogout} type="button" key="logout">Sign out</button>
                           </div>
                         </div>
@@ -75,6 +78,7 @@ const mapStateToProps = state => {
         isAuthenticated : state.Auth.isAuthenticated,
         isAdmin : state.Auth.isAdmin,
         userName : state.Auth.user.name,
+        userEmail : state.Auth.user.email,
     }
 };
 

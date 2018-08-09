@@ -10,6 +10,8 @@ import { APP } from '../constants'
 
 import { Button, Menu, MenuDivider, MenuItem, Popover, Position } from "@blueprintjs/core";
 
+import { Toast } from "../toaster"
+
 
 class Page extends React.Component {
     constructor(props) {

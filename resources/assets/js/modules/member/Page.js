@@ -1,13 +1,11 @@
 import React from 'react'
-import {
-    Segment,
-    Header,
-} from 'semantic-ui-react'
 
-import {Redirect} from 'react-router-dom'
+import PropTypes from 'prop-types'
+
 import Member from '../../layouts/member'
 
 class Page extends React.Component {
+
     constructor(props) {
         super(props);
     }
@@ -15,12 +13,17 @@ class Page extends React.Component {
     render() {
         return (
             <Member>
-                <Segment style={{minHeight: '100vh'}}>
-                    <Header as='h1'>Member portal</Header>
-                </Segment>
+                <div className="container mt-5">
+                    <h5>Member page {this.props.user.email}</h5>
+                </div>
             </Member>
         );
     }
+
 }
+
+Page.propTypes = {
+    user: PropTypes.object.isRequired,
+};
 
 export default Page;

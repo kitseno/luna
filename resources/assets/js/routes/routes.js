@@ -1,26 +1,26 @@
 
 // web
-import Home from '../modules/home'
-import About from '../modules/about'
-import Contact from '../modules/contact'
+import Home             from '../modules/home'
+import About            from '../modules/about'
+import Contact          from '../modules/contact'
 // auth
-import Login from '../modules/login'
-import Register from '../modules/register'
-import ForgotPassword from '../modules/forgotPassword'
-import ResetPassword from '../modules/resetPassword'
+import Login            from '../modules/login'
+import Register         from '../modules/register'
+import ForgotPassword   from '../modules/forgotPassword'
+import ResetPassword    from '../modules/resetPassword'
 
 // member
-import Member from '../modules/member'
+import Member           from '../modules/member'
 
 // admin
-import Admin from '../modules/admin'
-import Dashboard from '../modules/dashboard'
-import Users from '../modules/users'
-import Account from '../modules/account'
-import Settings from '../modules/settings'
+import Admin            from '../modules/admin'
+import Dashboard        from '../modules/dashboard'
+import Users            from '../modules/users'
+import Account          from '../modules/account'
+import Settings         from '../modules/settings'
 
 // 
-import NoMatch from '../modules/noMatch' //404 page not found
+import NoMatch          from '../modules/noMatch' //404 page not found
 
 const routes = [
     {
@@ -76,7 +76,7 @@ const routes = [
     
     /* Member */
     {
-        path: '/m/:user',
+        path: '/profile',
         exact: true,
         auth: true,
         middleware: ['member'],

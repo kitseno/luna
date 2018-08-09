@@ -1,10 +1,8 @@
 import React from 'react';
 
-import {
-    Grid,
-    Container,
-} from 'semantic-ui-react'
-import Header from '../../common/admin/Header'
+import Header from '../../common/web/Header'
+import Footer from '../../common/web/Footer'
+
 
 class Member extends React.Component {
 
@@ -15,10 +13,13 @@ class Member extends React.Component {
     render() {
         return (
             <div className="wrapper">
-              <Header/>
-              <section>
-                  { this.props.children }
-              </section>
+              <div className="container">
+                <Header path={this.props.path}/>
+                <section>
+                    { this.props.children }
+                </section>
+              </div>
+              <Footer/>
             </div>
         );
     }
