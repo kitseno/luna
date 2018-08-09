@@ -89,7 +89,17 @@ class LoginController extends Controller
     public function socialLogin($social)
     {
         if ($social == "facebook" || $social == "google" || $social == "linkedin" || $social == "graph") {
-            return Socialite::with($social)->stateless()->redirect();
+
+            $scopes = [];
+
+            if ($social == "graph") {
+                $scopes = ['User.Read.All', 'Calendars.Read', 'Mail.Read'];
+            }
+
+            return Socialite::with($social)
+                            ->scopes($scopes)
+                            ->stateless()
+                            ->redirect();
         } else {
             return Socialite::with($social)->redirect();
         }
