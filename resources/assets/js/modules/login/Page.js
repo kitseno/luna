@@ -13,6 +13,8 @@ import {AuthService} from '../../services'
 import PageHeader from '../../common/pageHeader'
 import { Toast } from '../../common/toaster'
 
+import ability from '../../utils/casl/ability'
+
 
 class Page extends React.Component {
 
@@ -31,7 +33,7 @@ class Page extends React.Component {
             responseError: {
                 isError: false,
                 code: '',
-                text: ''
+                text: '',
             },
             isLoading: false,
             errors: this.validator.errorBag
@@ -70,14 +72,18 @@ class Page extends React.Component {
 
     submit(credentials) {
         this.props.dispatch(AuthService.login(credentials))
-            .then((result) => {
-              Toast.show({message: "You\'re logged in, "+result.user.name+"!", icon: "tick", intent: "success"});
+            .then((res) => {
+
+                // Update ability of user based on permissions
+                ability.update(res.user.scopes)
+
+              Toast.show({message: "You\'re logged in, "+res.user.name+"!", icon: "tick", intent: "success"});
             })
             .catch(({error, statusCode}) => {
                 const responseError = {
                     isError: true,
                     code: statusCode,
-                    text: error
+                    text: error,
                 };
                 this.setState({responseError});
                 this.setState({
@@ -141,9 +147,13 @@ class Page extends React.Component {
                                         <InputGroup large className={errors.has('password') && 'bp3-intent-danger'} id="password" name="password" placeholder="Password" disabled={this.state.isLoading} onChange={this.handleChange} type="password" />
                                     </FormGroup>
                                     <Button fill intent="primary" type="submit" loading={this.state.isLoading}>Sign in</Button>
-                                    {this.state.responseError.isError && <Callout className="mt-1" intent="danger">
-                                        {this.state.responseError.text.message}
-                                    </Callout>}
+                                    {
+                                        this.state.responseError.isError &&
+                                        <Callout className="mt-1" intent="danger">
+                                            {this.state.responseError.text.message ? this.state.responseError.text.message : this.state.responseError.text}
+                                            {this.state.responseError.text == 'User not yet registered.' && <Link to="register" replace className="ml-1">Sign up here</Link>}
+                                        </Callout>
+                                    }
                                     <Link className="bp3-text-small" to='/forgot-password' replace>Forgot your password?</Link>
                                     <div className="mt-4 mb-4">
                                       <h6>or sign in with:</h6>

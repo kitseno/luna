@@ -21,8 +21,15 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
-        return new UserCollection(User::all());
+        $data = User::orderBy('created_at', 'desc')
+                    ->whereHas('roles', function ($q) {
+                        // $q->where('name', '<>', 'Super-admin');
+                    })
+                    ->with('roles')
+                    ->withTrashed()
+                    ->paginate(5);
+
+        return new UserCollection($data);
     }
 
     /**
@@ -62,9 +69,12 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(ChangeUserProfile $request, $id)
+    public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
+
+        $user = User::withTrashed()->findOrFail($id);
+
+        // return $user;
 
 
         if ($user) {
@@ -76,6 +86,13 @@ class UserController extends Controller
                               ->changeName($request)
                               // ->notifySubscribers()
                               ->sendResponse();
+                break;
+
+                case 'restoreUser':
+
+                    $user->restore();
+
+                    return $user->sendResponse();
                 break;
             }
         }
@@ -90,5 +107,12 @@ class UserController extends Controller
     public function destroy($id)
     {
         //
+        if ($user = User::findOrFail($id) ) {
+            if ($user->delete()) {
+                return $user->sendResponse();
+            }
+        }
+
+        
     }
 }

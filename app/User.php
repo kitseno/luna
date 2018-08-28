@@ -7,11 +7,15 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Notifications\ResetPassword as ResetPasswordNotification;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 class User extends Authenticatable
 {
     use HasApiTokens, Notifiable, HasRoles;
+    use SoftDeletes;
+
+    protected $guard_name = 'api';
 
     /**
      * The attributes that are mass assignable.
@@ -35,6 +39,8 @@ class User extends Authenticatable
     protected $casts = [
         'is_admin' => 'boolean',
     ];
+
+    protected $dates = ['deleted_at'];
 
 
     /* start of eloquent relationships */
@@ -72,4 +78,24 @@ class User extends Authenticatable
 
         return response()->json(['user' => $this], $statusCode);
     }
+
+    /*
+    Get all permissions scope
+    **/
+
+    public function getAllPermissionsName()
+    {
+        $scopes = [];
+
+        foreach ($this->getAllPermissions()->pluck('name') as $scope) {
+                $scopes[] = [
+                    'action'    => explode(' ', $scope)[0],
+                    'subject'   => explode(' ', $scope)[1],
+                ];
+        }
+
+        return $scopes;
+    }
+
+    
 }

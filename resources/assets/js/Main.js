@@ -2,6 +2,9 @@ import React from 'react'
 import {connect} from 'react-redux'
 import {APP} from './common/constants'
 
+import { AbilityContext } from './utils/casl/ability-context'
+import ability from './utils/casl/ability'
+
 class Main extends React.Component {
     constructor(props) {
         super(props);
@@ -19,7 +22,9 @@ class Main extends React.Component {
 
         return (
             <main>
+                <AbilityContext.Provider value={ability}>
                 {this.props.children}
+                </AbilityContext.Provider>
             </main>
         );
     }

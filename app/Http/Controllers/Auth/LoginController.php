@@ -26,12 +26,20 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $this->validate($request, [
+        
+        $validator = \Validator::make($request->only(['email','password']), [
             'email' => 'required|email|exists:users,email',
             'password' => 'required|min:6'
         ], [
-            'email.exists' => 'The user credentials were incorrect.'
+            'email.exists' => 'User not yet registered.'
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                "error" => 'validation_error',
+                "message" => $validator->errors()->all(),
+            ], 422);
+        }
 
         try {
 
@@ -52,16 +60,29 @@ class LoginController extends Controller
                 ],
             ]);
 
-            $user = User::where('email', $request->get('email'))->first();
+            $user = User::where('email', $request->get('email'))
+                    ->first();
+
+            $user_array = [
+                'id'            => $user->id,
+                'email'         => $user->email,
+                'name'          => $user->name,
+                'created_at'    => date($user->created_at),
+                'updated_at'    => date($user->updated_at),
+                'deleted_at'    => date($user->deleted_at),
+                
+                // Check if user has permission to access admin panel
+                // Assign boolean using permission
+                'is_admin'  => $user->hasPermissionTo('View Admin'),
+
+                // Add scope permissions
+                'scopes'    => $user->getAllPermissionsName(),
+            ];
 
             return response()->json([
-              'user' => $user,
+              'user' => $user_array,
               'token'=> json_decode((string) $response->getBody(), true)['access_token'],
             ], 200);
-
-
-            // return json_decode((string) $response->getBody(), true);
-            // return $response;
 
         } catch (\GuzzleHttp\Exception\ClientException $e) {
             return response()->json([
@@ -149,6 +170,20 @@ class LoginController extends Controller
             'userSocial'  => $userSocial,
             'token' => $access_token,
         ],200);
+    }
+
+    public function checkIfUserIsAuthenticated(Request $request)
+    {
+
+           if ($request->user()) {
+                return response()->json([
+                    'isAuthenticated' => true,
+                    'isAdmin' => $request->user()->hasPermissionTo('View Admin'),
+                    'scopes' => $request->user()->getAllPermissionsName(), 
+                ], 200);
+           } else {
+                return response()->json(['isAuthenticated' => false], 400);
+           }
     }
 
 }

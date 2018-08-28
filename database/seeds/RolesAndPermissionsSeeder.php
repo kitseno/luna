@@ -20,29 +20,40 @@ class RolesAndPermissionsSeeder extends Seeder
         // create permissions
 
         // user
-        Permission::create(['name' => 'add user']);
-        Permission::create(['name' => 'edit user']);
-        Permission::create(['name' => 'delete user']);
+        Permission::create(['name' => 'Create User']);
+        Permission::create(['name' => 'Update User']);
+        Permission::create(['name' => 'Delete User']);
 
         // profile
-        Permission::create(['name' => 'edit profile']);
+        Permission::create(['name' => 'Update Profile']);
 
 
         // create roles and assign created permissions
+        Permission::create(['name' => 'Administer Roles']);
+        Permission::create(['name' => 'Administer Permissions']);
 
+        // Admin
+        Permission::create(['name' => 'View Admin']);
 
         // Super admin
-        $role = Role::create(['name' => 'super-admin']);
+        $role = Role::create(['name' => 'Super-admin']);
         $role->givePermissionTo(Permission::all());
         $user = \App\User::find(1); // Set super-admin
         $user->assignRole(1); // Set super-admin
 
         // Admin
-        $role = Role::create(['name' => 'admin']);
-        $role->givePermissionTo(['edit profile', 'add user', 'edit user']);
+        $role = Role::create(['name' => 'Admin']);
+        $role->givePermissionTo([
+            'Update Profile',
+            'Create User',
+            'Update User',
+            'Administer Roles',
+            'Administer Permissions',
+            'View Admin',
+        ]);
 
         // Member
-        $role = Role::create(['name' => 'member']);
-        $role->givePermissionTo('edit profile');
+        $role = Role::create(['name' => 'Member']);
+        $role->givePermissionTo('Update Profile');
     }
 }

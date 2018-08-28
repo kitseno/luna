@@ -13,7 +13,7 @@ export default class LeftSidebar extends Component {
         // console.log(current_path);
 
         return (
-            <nav className="nav flex-column left-sidebar pt-4">
+            <nav className="nav flex-column left-sidebar pt-4 d-none d-sm-block">
               <Link className={"nav-item nav-link" + (current_path == '/admin/dashboard' ? ' active' : '')} to="dashboard">
                   <em className="fa fa-tachometer-alt mr-2"></em>
                   <span>Dashboard</span>

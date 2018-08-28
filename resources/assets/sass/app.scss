@@ -221,6 +221,7 @@ html {
 }
 body {
   margin-bottom: $footer-height; /* Margin bottom by footer height */
+  font-size: 1rem;
 }
 .footer {
   position: absolute;
@@ -268,4 +269,22 @@ body {
       bottom: 0;
       background-color: inherit;
       border-right: 1px solid #e3e3e3;
+}
+
+// Content
+
+section.content {
+  position: relative;
+  left: 0;
+  margin-left: 230px;
+  min-height: 100%;
+  padding: 25px;
+  font-size: 13px;
+}
+
+@include media-breakpoint-down(md) {
+  section.content {
+    margin-left: 0;
+    padding: 0.5rem;
+  }
 }

@@ -14,12 +14,14 @@ const initialState = {
     
 };
 
-const Auth = (state= initialState,{type,payload = null}) => {
+const Auth = (state = initialState,{type,payload = null}) => {
     switch (type) {
         case ActionTypes.AUTH_LOGIN:
             return authLogin(state,payload);
         case ActionTypes.AUTH_CHECK:
-            return checkAuth(state);
+            return checkAuth(state, payload);
+        case ActionTypes.AUTH_CHECKING:
+            return checkingAuth(state, payload);
         case ActionTypes.AUTH_LOGOUT:
             return logout(state);
         case ActionTypes.USER_UPDATE:
@@ -49,14 +51,28 @@ const authLogin = (state, payload) => {
 
 };
 
-const checkAuth = (state) => {
+const checkAuth = (state, payload) => {
+    console.log('Checking auth...');
+    // console.log(payload);
+
+    const isAuthenticated = (payload && payload.isAuthenticated ? payload.isAuthenticated : !!localStorage.getItem('access_token'));
+    const isAdmin = (payload && payload.isAdmin ? payload.isAdmin : localStorage.getItem('is_admin') === 'true');
+
     state = Object.assign({}, state, {
-        isAuthenticated : !!localStorage.getItem('access_token'),
-        isAdmin : localStorage.getItem('is_admin') === 'true',
+        isAuthenticated : isAuthenticated,
+        isAdmin : isAdmin,
     });
     if (state.isAuthenticated) {
         Http.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('access_token')}`;
     }
+
+    return state;
+};
+
+const checkingAuth = (state, payload) => {
+    state = Object.assign({}, state, {
+        checkingAuth: payload
+    });
     return state;
 };
 

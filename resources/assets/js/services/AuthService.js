@@ -1,6 +1,8 @@
 import Http from '../utils/Http'
 import * as action from '../store/actions'
 
+import ability from '../utils/casl/ability'
+
 export function login(credentials) {
     return dispatch => (
         new Promise((resolve, reject) => {
@@ -133,6 +135,38 @@ export function register(credentials) {
                     return reject(data);
                 })
         })
+    )
+}
+
+/**
+ * Check if user is authenticated
+ *
+ * @returns {function(*)}
+ */
+export function checkAuth() {
+
+    return dispatch => (
+        new Promise((resolve, reject) => {
+            
+            dispatch(action.checkingAuth(true));
+
+            return Http.get('/api/auth/check')
+              .then((res) => {
+
+                // Check auth reducer
+                dispatch(action.authCheck(res.data));
+
+                // Update ability CASL
+                ability.update(res.data.scopes);
+
+                dispatch(action.checkingAuth(false));
+
+                return resolve();
+              })
+              .catch(err => {
+                console.log(err)
+              })
+      })
     )
 }
 

@@ -1,15 +1,11 @@
 import React from 'react'
 import {
-    Button,
-    Divider,
-    Dimmer,
-    Form,
-    Grid,
-    Header,
-    Icon,
-    Loader,
-    Message,
-    Segment} from 'semantic-ui-react'
+        Callout,
+        Button,
+        Card,
+        FormGroup,
+        InputGroup,
+      } from "@blueprintjs/core"
 import {Link, Redirect} from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { Validator } from 'ree-validate'
@@ -107,56 +103,39 @@ class Page extends React.Component {
         }
         const {errors} = this.state;
 
-        return (
-            <div>
-                <PageHeader heading="login"/>
-                <Segment className='page-loader' style={{display: this.state.isLoading ? 'block' : 'none'}}>
-                    <Dimmer active inverted>
-                        <Loader size='large'>Resetting Password...</Loader>
-                    </Dimmer>
-                </Segment>
+        const email_error = errors.has('email') && errors.first('email');
 
-                <Grid
-                    textAlign='center'
-                    verticalAlign='middle'
-                    className='login-form'
-                >
-                    <Grid.Column style={{maxWidth: '450px'}}>
-                        <Header as='h2' color='teal' textAlign='center'>
-                            Reset your password
-                        </Header>
-                        {this.state.responseError.isError && <Message negative>
-                            <Message.Content>
-                                {this.state.responseError.text}
-                            </Message.Content>
-                        </Message>}
-                        {this.state.isSuccess && <Message positive>
-                            <Message.Content>
-                                If the email you entered exists, a reset link has been sent !
-                            </Message.Content>
-                        </Message>}
-                        <Form size='large'>
-                            <Segment stacked>
-                                <Form.Input
-                                    fluid
-                                    icon='user'
-                                    iconPosition='left'
-                                    name='email'
-                                    placeholder='E-mail address'
-                                    onChange={this.handleChange}
-                                    error={errors.has('email')}
-                                />
-                                {errors.has('email') && <Header size='tiny' className='custom-error' color='red'>
-                                    {errors.first('email')}
-                                </Header>}
-                                <Button color='teal' fluid size='large' onClick={this.handleSubmit}>Reset Password</Button>
-                            </Segment>
-                        </Form>
-                        <Message>
-                            New to us? <Link to='/register' replace>Register</Link>
-                        </Message>
-                    </Grid.Column>
-                </Grid>
+        return (
+            <div className="container mt-5 mh-100">
+                <PageHeader heading="Password reset page"/>
+                    <div className="row align-items-center mt-3">
+                        <div className="col-md-6 col-lg-4">
+                          <Card className="p-4">
+                            <Link to='/' className="bp3-text-small" replace>Back to home</Link>
+                            <h4 className={"bp3-heading"}>Reset your password</h4>
+                            <form onSubmit={this.handleSubmit}>
+                                    <FormGroup
+                                        helperText={email_error}
+                                        labelFor="email"
+                                        intent='danger'
+                                        className="mb-1"
+                                    >
+                                        <InputGroup large className={errors.has('email') && 'bp3-intent-danger'} id="email" name="email" placeholder="E-mail address" disabled={this.state.isLoading} onChange={this.handleChange} />
+                                    </FormGroup>
+                                    <Button fill intent="primary" type="submit" loading={this.state.isLoading}>Reset Password</Button>
+                                    {this.state.responseError.isError && <Callout className="mt-1" intent="danger">
+                                        {this.state.responseError.text.message}
+                                    </Callout>}
+                                    {this.state.isSuccess && <Callout className="mt-1" intent="success">
+                                        If the email you entered exists, a reset link has been sent !
+                                    </Callout>}
+                            </form>
+                            <Callout className="mt-4">
+                                New to us? <Link to='/register' replace>Sign up</Link> or <Link to="/login" replace>Sign in</Link>
+                            </Callout>
+                            </Card>
+                        </div>
+                    </div>
             </div>
         );
     }

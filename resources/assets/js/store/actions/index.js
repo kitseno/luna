@@ -13,12 +13,21 @@ export function authLogout(){
     }
 }
 
-export function authCheck(){
+export function authCheck(payload){
     return {
-        type: ActionTypes.AUTH_CHECK
+        type: ActionTypes.AUTH_CHECK,
+        payload
     }
 }
 
+export function checkingAuth(payload){
+    return {
+        type: ActionTypes.AUTH_CHECKING,
+        payload
+    }
+}
+
+//
 
 export function updateUser(payload){
     return {

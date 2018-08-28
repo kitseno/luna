@@ -22,19 +22,13 @@ class Admin extends React.Component {
     render() { 
         const {isAdmin, path} = this.props;
 
-        if (isAdmin === false) { return <Redirect to='/m/username' replace/> }
+        if (isAdmin === false) { return <Redirect to='/' replace/> }
 
         return (
             <div className="wrapper">
               <Header path={path}/>
               <LeftSidebar path={path}/>
-              <section className="content" style={{
-                position: 'relative',
-                left: '0',
-                marginLeft: '230px',
-                minHeight: '100%',
-                padding: '25px'
-              }}>
+              <section className="content">
                   { this.props.children }
               </section>
               <Footer/>

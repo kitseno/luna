@@ -16,6 +16,7 @@ import Member           from '../modules/member'
 import Admin            from '../modules/admin'
 import Dashboard        from '../modules/dashboard'
 import Users            from '../modules/users'
+import Permissions      from '../modules/permissions'
 import Account          from '../modules/account'
 import Settings         from '../modules/settings'
 
@@ -107,6 +108,14 @@ const routes = [
         middleware: ['admin'],
         title: 'Users',
         component: Users
+    },
+    {
+        path: '/admin/permissions',
+        exact: true,
+        auth: true,
+        middleware: ['admin'],
+        title: 'Permissions',
+        component: Permissions
     },
     {
         path: '/admin/account',

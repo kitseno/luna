@@ -23,12 +23,17 @@ Route::group(['prefix'=> 'auth'], function() {
     Route::post('/login','Auth\LoginController@login');
     Route::post('/login/{social}/callback','Auth\LoginController@handleProviderCallback')->where('social','twitter|facebook|linkedin|google|graph');
 
+    // Check if user is authenticated
+    Route::get('/check','Auth\LoginController@checkIfUserIsAuthenticated')->middleware('auth:api');
+
     Route::delete('/logout', 'Auth\LoginController@logout')
     	->name('auth.logout')
     	->middleware('auth:api');
 });
 
 Route::resource('users', 'API\UserController')->middleware('auth:api');
+Route::resource('roles', 'API\RoleController')->middleware('auth:api');
+Route::resource('permissions', 'API\PermissionController')->middleware('auth:api');
 
 // Route::group(['prefix'=> 'users', 'middleware' => 'auth:api'], function() {
 //     // Route::match(['put', 'patch'], '/{id}', 'Api\UserController@update')->name('users.update');
