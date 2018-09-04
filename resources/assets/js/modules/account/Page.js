@@ -12,7 +12,7 @@ import {
     Message,
     Form,
 } from 'semantic-ui-react'
-import {Validator} from 'ree-validate'
+import ReeValidate from 'ree-validate'
 
 import Admin from '../../layouts/admin'
 import {UserService} from '../../services'
@@ -21,7 +21,7 @@ class Page extends React.Component {
     constructor(props) {
         super(props);
 
-        this.validator = new Validator({
+        this.validator = new ReeValidate({
             name: 'required|min:5',
         });
 
@@ -43,7 +43,7 @@ class Page extends React.Component {
             edit_modal: false,
             change_user,
 
-            errors: this.validator.errorBag,
+            errors: this.validator.errors
         }
 
 
@@ -121,8 +121,8 @@ class Page extends React.Component {
 
         this.validator.validate(name, value)
             .then(() => {
-                const {errorBag} = this.validator;
-                this.setState({errors: errorBag, change_user})
+                const {errors} = this.validator;
+                this.setState({errors: errors, change_user})
             });
     }
 

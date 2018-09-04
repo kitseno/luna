@@ -1,6 +1,8 @@
 import Http from '../utils/Http'
 import * as action from '../store/actions'
 
+import ability from '../utils/casl/ability'
+
 
 export function getRoles(page) {
 
@@ -24,12 +26,13 @@ export function getRoles(page) {
                     }
                     return reject(data);
                 })
+                
         })
     )
 
 }
 
-export function addRole(data) {
+export function create(data) {
 
     return dispatch => (
         new Promise((resolve, reject) => {

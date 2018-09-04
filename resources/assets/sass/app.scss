@@ -240,21 +240,21 @@ body {
     width: 230px;
     left: 0;
     position: absolute;
-    border-right: 1px solid #e3e3e3;
 
     .nav-link {
-      color: #696969;
-      font-size: 0.9rem;
+      color: #ccc;
+      font-size: 0.8rem;
+      font-weight: 100;
       line-height: 38px;
-      padding: 0 20px;
+      padding: 0 2rem;
     }
 
     .nav-link:hover {
-      background: #f0f0f0;
+      background: #111;
     }
 
     .nav-link.active {
-      color: #007bff;
+      color: #fff;
     }
 
 }
@@ -268,7 +268,27 @@ body {
       left: 0;
       bottom: 0;
       background-color: inherit;
-      border-right: 1px solid #e3e3e3;
+}
+
+.card,
+.bp3-dialog,
+.dropdown-menu
+{
+  border-radius: 0.5rem;
+  border: none;
+}
+
+.bp3-button,
+.bp3-input,
+.bp3-toast,
+.bp3-callout,
+.pagination
+{
+  border-radius: 0.3rem;
+}
+
+.text-hover-danger:hover {
+  color: map-get($theme-colors, 'danger') !important;
 }
 
 // Content
@@ -278,13 +298,19 @@ section.content {
   left: 0;
   margin-left: 230px;
   min-height: 100%;
-  padding: 25px;
+  padding: 2rem;
   font-size: 13px;
 }
 
-@include media-breakpoint-down(md) {
+@include media-breakpoint-down(xs) {
   section.content {
     margin-left: 0;
     padding: 0.5rem;
   }
+}
+
+// Admin
+
+.admin-brand {
+  padding: 0.5rem 1rem;
 }

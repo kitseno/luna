@@ -36,7 +36,10 @@ class PageHeader extends React.Component {
 
         return (
             <nav className="mt-4 navbar navbar-expand-lg navbar-light">
-              <Link className="navbar-brand" to="/">{APP.NAME}</Link>
+              <Link className="navbar-brand" to="/">
+                <i className="fas fa-lightbulb-on"></i>
+                {APP.NAME}
+              </Link>
               <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <span className="navbar-toggler-icon"></span>
               </button>

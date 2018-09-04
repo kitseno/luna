@@ -85,6 +85,33 @@ export function changeName(user) {
     )
 }
 
+export function create(data) {
+    return dispatch => (
+        new Promise((resolve, reject) => {
+
+            Http.post('/api/users', data)
+                .then(res => {
+                    return resolve(res.data);
+                })
+                .catch(err => {
+
+                    const statusCode = err.response.status;
+                    const data = {
+                        error: null,
+                        statusCode,
+                    };
+                    if (statusCode === 401 || statusCode === 422 || statusCode === 402) {
+                        // status 401 means unauthorized
+                        // status 422 means unprocessable entity
+                        data.error = err.response.data;
+                    }
+
+                    return reject(data);
+                })
+        })
+    )
+}
+
 export function removeUser(id) {
 
     return dispatch => (

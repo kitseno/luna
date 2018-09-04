@@ -9,7 +9,7 @@ import {
       } from "@blueprintjs/core"
 import {Link, Redirect} from 'react-router-dom'
 import PropTypes from 'prop-types'
-import {Validator} from 'ree-validate'
+import ReeValidate from 'ree-validate'
 import {AuthService} from '../../services'
 import PageHeader from '../../common/pageHeader'
 
@@ -17,11 +17,11 @@ class Page extends React.Component {
     constructor(props) {
         super(props);
 
-        this.validator = new Validator({
+        this.validator = new ReeValidate({
             name: 'required|min:3',
             email: 'required|email',
             password: 'required|min:6',
-            password_confirmation: 'required|min:6|confirmed:password',
+            password_confirmation: 'required|min:6',
         });
 
         this.state = {
@@ -38,7 +38,7 @@ class Page extends React.Component {
             },
             isSuccess: false,
             isLoading: false,
-            errors: this.validator.errorBag
+            errors: this.validator.errors
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -52,8 +52,8 @@ class Page extends React.Component {
 
         this.validator.validate(name, value)
             .then(() => {
-                const {errorBag} = this.validator;
-                this.setState({errors: errorBag, credentials})
+                const {errors} = this.validator;
+                this.setState({errors: errors, credentials})
             });
     }
 

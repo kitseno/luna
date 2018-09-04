@@ -10,15 +10,12 @@ import {
       } from "@blueprintjs/core"
 
 import Admin from '../../layouts/admin'
-
 import {RoleService, PermissionService} from '../../services'
-
 import Pagination from "react-js-pagination"
-
 import moment from "moment"
-
 import { Toast } from '../../common/toaster'
 
+// CASL
 import { Can, CanWithLoader } from '../../utils/casl/ability-context'
 
 class Page extends React.Component {
@@ -26,7 +23,7 @@ class Page extends React.Component {
     constructor(props) {
         super(props);
 
-        const roles = [{name: 12345},{name: 123},{name: 1234567},];
+        const roles = [{name: '-----'},{name: '---'},{name: '---------'},];
 
         this.state = {
             roles: roles,
@@ -36,7 +33,7 @@ class Page extends React.Component {
             filterPermission: null,
             addMoreRoleDialogOpen: false,
             addMorePermissionDialogOpen: false,
-            // checkingAuth: this.props.checkingAuth,
+            checkingAuth: this.props.checkingAuth,
         }
 
         this.filterPermissions = this.filterPermissions.bind(this);
@@ -47,12 +44,15 @@ class Page extends React.Component {
         this.handlePermissionSubmit = this.handlePermissionSubmit.bind(this);
     }
 
-    componentDidMount() { 
+    componentDidMount() {
         this.fetchRoles();
     }
 
 
     componentWillReceiveProps(nextProps) {
+
+        // Update checking auth boolean
+        this.setState({checkingAuth: this.props.checkingAuth});
     }
 
 
@@ -120,7 +120,7 @@ class Page extends React.Component {
           if (input.checkValidity()) {
             this.setState({ [name+"_error"]: false });
 
-            dispatch(RoleService.addRole({name: input.value}))
+            dispatch(RoleService.create({name: input.value}))
                 .then((result)  => {
                     // Toast.show({message: "Successfully, "+(target.checked ? 'added':'removed')+" '"+result.name+"'", icon: "info-sign", intent: "success"});
                 })
@@ -148,11 +148,12 @@ class Page extends React.Component {
           if (input.checkValidity()) {
             this.setState({ [name+"_error"]: false });
 
-            dispatch(PermissionService.addRole({name: input.value}))
-                .then((result)  => {
+            dispatch(PermissionService.create({name: input.value}))
+                .then((res)  => {
+                    console.log(res);
                     // Toast.show({message: "Successfully, "+(target.checked ? 'added':'removed')+" '"+result.name+"'", icon: "info-sign", intent: "success"});
                 })
-                .catch((error) => {
+                .catch((err) => {
                     // Toast.show({message: "Failed to change permission!", icon: "warning-sign", intent: "warning"});
                 })
           } else {
@@ -179,7 +180,7 @@ class Page extends React.Component {
     render() {
 
         const addMoreRoleDialog = (
-            <Dialog title="Add role"
+            <Dialog title="Create role"
                     isOpen={this.state.addMoreRoleDialogOpen}
                     onClose={ () => {this.setState({addMoreRoleDialogOpen: false})} }
                     canEscapeKeyClose="false"
@@ -193,8 +194,8 @@ class Page extends React.Component {
                     </div>
                     <div className="bp3-dialog-footer">
                         <div className="bp3-dialog-footer-actions">
-                            <button type="button" className="bp3-button" type="submit">Submit</button>
-                            <button type="submit" className="bp3-button bp3-intent-primary" onClick={ () => {this.setState({addMoreRoleDialogOpen: false})} }>Cancel</button>
+                            <button className="bp3-button" type="submit">Submit</button>
+                            <button type="button" className="bp3-button bp3-intent-primary" onClick={ () => {this.setState({addMoreRoleDialogOpen: false})} }>Cancel</button>
                         </div>
                     </div>
                 </form>
@@ -202,7 +203,7 @@ class Page extends React.Component {
             )
 
         const addMorePermissionDialog = (
-            <Dialog title="Add permission"
+            <Dialog title="Create permission"
                     isOpen={this.state.addMorePermissionDialogOpen}
                     onClose={ () => {this.setState({addMorePermissionDialogOpen: false})} }
                     canEscapeKeyClose="false"
@@ -216,8 +217,8 @@ class Page extends React.Component {
                     </div>
                     <div className="bp3-dialog-footer">
                         <div className="bp3-dialog-footer-actions">
-                            <button type="button" className="bp3-button" type="submit">Submit</button>
-                            <button type="submit" className="bp3-button bp3-intent-primary" onClick={ () => {this.setState({addMorePermissionDialogOpen: false})} }>Cancel</button>
+                            <button className="bp3-button" type="submit">Submit</button>
+                            <button type="button" className="bp3-button bp3-intent-primary" onClick={ () => {this.setState({addMorePermissionDialogOpen: false})} }>Cancel</button>
                         </div>
                     </div>
                 </form>
@@ -230,9 +231,13 @@ class Page extends React.Component {
                 {addMoreRoleDialog}
                 {addMorePermissionDialog}
 
-                <CanWithLoader I="Administer" a="Permissions" isLoading={this.props.checkingAuth}>
-                    <div className="row no-gutters">
-                        <div className="card col-md-6">
+                <Can not I="Administer" a="Permissions">
+                    <div className={this.state.checkingAuth ? 'd-none' : 'd-block'}>Sorry, you don't have enough access to view this module.</div>
+                </Can>
+
+                <CanWithLoader I="Administer" a="Permissions" isLoading={this.state.checkingAuth}>
+                    <div className="row no-gutters animated fadeIn">
+                        <div className="card col-xl-6 col-lg-9 col-md-12 col-sm-12">
                             <div className="card-body">
                                 <h5 className="card-title">Roles & Permissions</h5>
 
@@ -243,7 +248,7 @@ class Page extends React.Component {
                                       <span className="bp3-icon bp3-icon-filter"></span>
                                       <input className="bp3-input" type="text" placeholder="Filter roles" dir="auto" onChange={ this.filterRoles } />
                                     </div>
-                                    <div className="list-group flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                    <div className="list-group flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical"  style={{'overflowX':'scroll', 'maxHeight': '300px'}}>
                                     {
                                         this.state.roles && this.state.roles
                                             .filter((obj) => {
@@ -262,7 +267,7 @@ class Page extends React.Component {
                                         })
                                     }
                                     </div>
-                                    <Button fill icon="add" className="mt-2" onClick={this.openAddMoreRoleDialog.bind(this)}>Add more role</Button>
+                                    <Button fill icon="add" className="mt-2" onClick={this.openAddMoreRoleDialog.bind(this)}>Create Role</Button>
                                   </div>
                                   <div className="col-8">
                                     <h6>Permissions</h6>
@@ -270,7 +275,7 @@ class Page extends React.Component {
                                       <span className="bp3-icon bp3-icon-filter"></span>
                                       <input className="bp3-input" type="text" placeholder="Filter permissions" dir="auto" onChange={ this.filterPermissions } />
                                     </div>
-                                    <div className="tab-content" id="v-pills-tabContent">
+                                    <div className="tab-content" id="v-pills-tabContent" style={{'overflowX':'scroll', 'maxHeight': '300px'}}>
                                     {
                                         this.state.roles && this.state.roles.map((role, key) => {
                                             return (<div key={key} className="tab-pane fade" id={"v-pills-"+role.id} role="tabpanel" aria-labelledby={"v-pills-"+role.id+"-tab"}>
@@ -290,11 +295,11 @@ class Page extends React.Component {
                                                                 .map((permission, key2) => {
                                                                 return (
                                                                         <li key={key2} className="list-group-item">
-                                                                            <div className="form-check form-check-inline">
-                                                                              <input className="form-check-input" defaultChecked={(role.permissions.filter(obj => obj.name == permission.name)).length ? true : false} onChange={(e) => {this.handleChange(e, permission.id, role.id)}} type="checkbox" id={"permission-"+key+"-"+permission.id} name={"permission-"+key+"-"+permission.id} />
-                                                                              <label className="form-check-label" htmlFor={"permission-"+key+"-"+permission.id}>{permission.name}</label>
+                                                                            <div className="custom-control custom-checkbox">
+                                                                              <input type="checkbox" className="custom-control-input" defaultChecked={(role.permissions.filter(obj => obj.name == permission.name)).length ? true : false} onChange={(e) => {this.handleChange(e, permission.id, role.id)}} id={"permission-"+key+"-"+permission.id} name={"permission-"+key+"-"+permission.id} />
+                                                                              <label className="custom-control-label" style={{paddingTop: '3px'}} htmlFor={"permission-"+key+"-"+permission.id}>{permission.name}</label>
+                                                                              <button type="button" className="btn btn-link p-0 btn-small float-right"><small><i className="fas fa-trash text-hover-danger text-black-50"></i></small></button>
                                                                             </div>
-                                                                            <Button small minimal intent="danger" icon="trash" className="float-right"></Button>
                                                                         </li>
                                                                     )
                                                             })
@@ -304,7 +309,7 @@ class Page extends React.Component {
                                         })
                                     }
                                     </div>
-                                    <Button icon="add" fill className="mt-2" onClick={this.openAddMorePermissionDialog.bind(this)}>Add more permission</Button>
+                                    <Button icon="add" fill className="mt-2" onClick={this.openAddMorePermissionDialog.bind(this)}>Create Permission</Button>
                                   </div>
                                 </div>
                             </div>

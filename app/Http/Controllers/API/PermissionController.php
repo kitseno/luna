@@ -12,6 +12,10 @@ use Cache;
 
 class PermissionController extends Controller
 {
+
+    public function __construct() {
+        $this->middleware(['auth', 'isAdmin']);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -41,6 +45,19 @@ class PermissionController extends Controller
     public function store(Request $request)
     {
         //
+        if ($request->name) {
+
+            // Create permission
+            $permission = Permission::create(['name' => $request->name]);
+
+            // Get super-admin role
+            $role = Role::find(1);
+
+            // Give super-admin permission
+            $role->givePermissionTo($permission);
+
+            return response()->json($permission, 200);
+        }
     }
 
     /**

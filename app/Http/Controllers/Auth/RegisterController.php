@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\User;
-use App\Profile;
-use App\Http\Controllers\Controller;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Validator;
-use GuzzleHttp\Client;
 
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+use Illuminate\Auth\Events\Registered;
+use Validator;
+use App\User;
 
 class RegisterController extends Controller
 {
@@ -48,7 +46,7 @@ class RegisterController extends Controller
 
             event(
                 new Registered(
-                    $this->createUserWithProfile($request->all())
+                    User::createUserWithProfile($request->all())
                 )
             );
 
@@ -61,40 +59,6 @@ class RegisterController extends Controller
                 "error" => "could_not_register",
                 "message" => $e->getMessage()
             ], 400);
-        }
-    }
-
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array $data
-     * @return User
-     */
-    protected function createUserWithProfile(array $data)
-    {
-
-        $user = new User;
-
-        $user->name = $data['name'];
-        $user->email = $data['email'];
-        $user->password = bcrypt($data['password']);
-
-        if ($user->save()) {
-
-            // new profile instance
-            $profile = new Profile([
-                'about' => 'Default about profile.'
-            ]);
-
-            // save profile of user
-            $user->profile()
-                ->save($profile);
-
-            $user->assignRole('member');
-
-            return $user;
-        } else {
-            return false;
         }
     }
 

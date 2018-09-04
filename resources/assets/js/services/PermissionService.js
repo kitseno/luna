@@ -28,3 +28,32 @@ export function changePermission(data) {
     )
 
 }
+
+
+export function create(data) {
+
+    return dispatch => (
+        new Promise((resolve, reject) => {
+
+            Http.post('/api/permissions', data)
+                .then(res => {
+                    console.log(res);
+                    return resolve(res.data);
+                })
+                .catch(err => {
+                    const statusCode = err.response.status;
+                    const data = {
+                        error: null,
+                        statusCode,
+                    };
+                    if (statusCode === 401 || statusCode === 422) {
+                        // status 401 means unauthorized
+                        // status 422 means unprocessable entity
+                        data.error = err.response.data.message;
+                    }
+                    return reject(data);
+                })
+        })
+    )
+
+}

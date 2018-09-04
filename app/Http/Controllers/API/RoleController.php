@@ -23,8 +23,11 @@ class RoleController extends Controller
     public function index()
     {
         //
+        
         return [
-                'roles' => Role::with('permissions')->paginate(5),
+                'roles' => Role::with('permissions')
+                                ->where('id','!=',1)
+                                ->paginate(5),
                 'permissions' => Permission::all()
             ];
     }
@@ -47,7 +50,9 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         //
-        return $role = Role::create(['name' => $request->name]);
+        if ($request->name) {
+            return $role = Role::create(['name' => $request->name]);    
+        }
     }
 
     /**

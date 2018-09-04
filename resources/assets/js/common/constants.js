@@ -2,5 +2,7 @@
 // -----------------------------------
 
 export const APP = {
-  NAME: 'Laravel React Boilerplate'
+  NAME: 'Luna Site',
+  PANEL: 'Luna',
+  PANEL_ICON: 'moon',
 };

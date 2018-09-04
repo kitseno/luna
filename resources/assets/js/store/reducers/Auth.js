@@ -10,6 +10,7 @@ const user = new User({});
 const initialState = {
     isAuthenticated : false,
     isAdmin: false,
+    checkingAuth: false,
     user,
     
 };

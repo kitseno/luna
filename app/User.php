@@ -97,5 +97,33 @@ class User extends Authenticatable
         return $scopes;
     }
 
+    /**
+     * Create a new user instance after a valid registration.
+     *
+     * @param  array $data
+     * @return User
+     */
+    public static function createUserWithProfile(array $data)
+    {
+
+        $user = self::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+        ]);
+
+        $user->profile()
+                ->create([
+                    'about' => 'Default about profile.'
+                ]);
+
+        $role = $data['role'] ?? 'Member';
+
+        $user->assignRole($role);
+
+        return $user;
+
+    }
+
     
 }

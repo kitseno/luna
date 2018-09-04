@@ -9,6 +9,8 @@ use App\Http\Resources\User as UserResource;
 use App\Http\Resources\UserCollection;
 
 use App\Http\Requests\ChangeUserProfile;
+use Illuminate\Auth\Events\Registered;
+use Validator;
 
 
 class UserController extends Controller
@@ -23,11 +25,11 @@ class UserController extends Controller
     {
         $data = User::orderBy('created_at', 'desc')
                     ->whereHas('roles', function ($q) {
-                        // $q->where('name', '<>', 'Super-admin');
+                        $q->where('name', '<>', 'Super-admin');
                     })
                     ->with('roles')
                     ->withTrashed()
-                    ->paginate(5);
+                    ->paginate(10);
 
         return new UserCollection($data);
     }
@@ -40,7 +42,36 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
+        if ($request->user()->can('Add User')) {
+
+            $validator = Validator::make($request->all(), [
+                'name'      => 'required|min:3',
+                'email'     => 'required|email|unique:users,email',
+                'password'  => 'required|min:6',
+                'role'      => 'required'
+            ], [
+                'role.required' => 'You must not leave the role blank.',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    "error" => 'validation_error',
+                    "message" => $validator->errors(),
+                ], 422);
+            }
+
+            try {
+
+                return User::createUserWithProfile($request->all())->sendResponse();
+
+            } catch (\Exception $e) {
+
+            }
+
+        } else {
+            return response()->json(['error' => 'Unauthorized', 'message' => "You're not allowed to create user."], 402);
+        }
     }
 
     /**
@@ -89,10 +120,11 @@ class UserController extends Controller
                 break;
 
                 case 'restoreUser':
+                    if ($request->user()->can('Restore User')) {
+                        $user->restore();
 
-                    $user->restore();
-
-                    return $user->sendResponse();
+                        return $user->sendResponse();
+                    }
                 break;
             }
         }
@@ -107,9 +139,11 @@ class UserController extends Controller
     public function destroy($id)
     {
         //
-        if ($user = User::findOrFail($id) ) {
-            if ($user->delete()) {
-                return $user->sendResponse();
+        if ($request->user()->can('Delete User')) {
+            if ($user = User::findOrFail($id) ) {
+                if ($user->delete()) {
+                    return $user->sendResponse();
+                }
             }
         }
 

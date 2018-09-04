@@ -176,11 +176,13 @@ class LoginController extends Controller
     {
 
            if ($request->user()) {
+
                 return response()->json([
                     'isAuthenticated' => true,
                     'isAdmin' => $request->user()->hasPermissionTo('View Admin'),
                     'scopes' => $request->user()->getAllPermissionsName(), 
                 ], 200);
+                
            } else {
                 return response()->json(['isAuthenticated' => false], 400);
            }
