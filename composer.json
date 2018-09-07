@@ -12,7 +12,8 @@
         "laravel/socialite": "^3.0",
         "laravel/tinker": "^1.0",
         "socialiteproviders/microsoft-graph": "^2.0",
-        "spatie/laravel-permission": "^2.11"
+        "spatie/laravel-permission": "^2.11",
+        "torann/geoip": "^1.0"
     },
     "require-dev": {
         "filp/whoops": "~2.0",

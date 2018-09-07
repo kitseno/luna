@@ -10,6 +10,5 @@
 
 function me() {
 
-
     return \Auth::user();
 }

@@ -23,7 +23,12 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name',
+        'email',
+        'password',
+        'timezone',
+        'last_login_at',
+        'last_login_ip',
     ];
 
     /**
@@ -51,6 +56,19 @@ class User extends Authenticatable
     }
 
     /* end of eloquent relationships */
+
+
+    /**
+    ** Methods
+    */
+
+    /**
+     * @return bool
+     */
+    public function isConfirmed()
+    {
+        return $this->confirmed;
+    }
 
     // Change name
     public function changeName($request)
@@ -117,7 +135,7 @@ class User extends Authenticatable
                     'about' => 'Default about profile.'
                 ]);
 
-        $role = $data['role'] ?? 'Member';
+        $role = $data['role'] ?? config('access.users.default_role');
 
         $user->assignRole($role);
 

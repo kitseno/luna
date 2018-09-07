@@ -4,12 +4,17 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
 use App\User;
 use App\Profile;
 
 use Socialite;
+
+// Events
+use App\Events\User\Login as UserLogin;
+use App\Events\User\Logout as UserLogout;
 
 class LoginController extends Controller
 {
@@ -79,6 +84,8 @@ class LoginController extends Controller
                 'scopes'    => $user->getAllPermissionsName(),
             ];
 
+            event(new UserLogin($user));
+
             return response()->json([
               'user' => $user_array,
               'token'=> json_decode((string) $response->getBody(), true)['access_token'],
@@ -103,6 +110,8 @@ class LoginController extends Controller
             ]);
 
         $accessToken->revoke();
+
+        event(new UserLogout($request->user()));
 
         return response()->json(['message' => '`I guess I\'m kinda hoping you\'ll come back over the rail and get me off the hook here.` - Titanic, Jack, Leonardo DiCarpio'], 201);
     }

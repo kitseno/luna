@@ -58,7 +58,7 @@ export function socialLogin(data) {
 export function resetPassword(credentials) {
     return dispatch => (
         new Promise((resolve, reject) => {
-            Http.post('../api/password/email', credentials)
+            Http.post('../api/password/create', credentials)
                 .then(res => {
                     return resolve(res.data);
                 })
@@ -82,7 +82,7 @@ export function resetPassword(credentials) {
 export function updatePassword(credentials) {
     return dispatch => (
         new Promise((resolve, reject) => {
-            Http.post('../../api/password/reset', credentials)
+            Http.post('/api/password/reset', credentials)
                 .then(res => {
                     const statusCode = res.data.status;
                     if (statusCode == 202) {
@@ -95,6 +95,7 @@ export function updatePassword(credentials) {
                     return resolve(res);
                 })
                 .catch(err => {
+
                     const statusCode = err.response.status;
                     const data = {
                         error: null,
@@ -103,7 +104,7 @@ export function updatePassword(credentials) {
                     if (statusCode === 401 || statusCode === 422) {
                         // status 401 means unauthorized
                         // status 422 means unprocessable entity
-                        data.error = err.response.data.message;
+                        data.error = err.response.data;
                     }
                     return reject(data);
                 })
@@ -116,6 +117,12 @@ export function register(credentials) {
         new Promise((resolve, reject) => {
             Http.post('api/auth/register', credentials)
                 .then(res => {
+
+                    if (res.data.token) {
+                        dispatch(action.authLogin(res.data));
+                        dispatch(action.updateUser(res.data));
+                    }
+
                     return resolve(res.data);
                 })
                 .catch(err => {

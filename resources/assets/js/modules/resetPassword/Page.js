@@ -1,5 +1,16 @@
 import React from 'react'
-import {Button, Dimmer, Form, Grid, Header, Loader, Message, Segment} from 'semantic-ui-react'
+
+import {
+        Callout,
+        Button,
+        Card,
+        FormGroup,
+        InputGroup,
+      } from "@blueprintjs/core"
+
+
+import { logout } from '../../services/AuthService'
+
 import {Link, Redirect} from 'react-router-dom'
 import PropTypes from 'prop-types'
 import ReeValidate from 'ree-validate'
@@ -11,7 +22,7 @@ class Page extends React.Component {
         super(props);
         this.validator = new ReeValidate({
             password: 'required|min:6',
-            password_confirmation: 'required|min:6|confirmed:password',
+            password_confirmation: 'required|min:6',
             token: 'required',
             email: 'required'
         });
@@ -21,11 +32,12 @@ class Page extends React.Component {
                 password_confirmation: '',
                 token: this.props.match.params.token,
                 email: this.props.match.params.email.replace("29gnmLTv686QsnV","@")
+                // email: this.props.match.params.email,
             },
             responseError: {
                 isError: false,
                 code: '',
-                text: ''
+                errors: ''
             },
             isSuccess: false,
             isLoading: false,
@@ -73,16 +85,38 @@ class Page extends React.Component {
                 this.setState({
                     isSuccess: true,
                 });
+
+                this.setState({
+                    credentials: {
+                        password: '',
+                        password_confirmation: '',
+                        token: this.props.match.params.token,
+                        email: this.props.match.params.email.replace("29gnmLTv686QsnV","@")
+                    }
+                });
             })
             .catch(({error, statusCode}) => {
+
                 const responseError = {
                     isError: true,
                     code: statusCode,
-                    text: error
+                    errors: error.errors,
+                    message: error.message,
                 };
+
                 this.setState({responseError});
+
                 this.setState({
                     isLoading: false
+                });
+
+                this.setState({
+                    credentials: {
+                        password: '',
+                        password_confirmation: '',
+                        token: this.props.match.params.token,
+                        email: this.props.match.params.email.replace("29gnmLTv686QsnV","@")
+                    }
                 });
             })
     }
@@ -91,73 +125,55 @@ class Page extends React.Component {
         this.setState({
             isLoading: false
         });
+        this.props.dispatch(logout());
     }
 
     render() {
-        if (this.props.isAuthenticated) {
-            return <Redirect to='/' replace/>
-        }
-        const {errors} = this.state;
-        return (
-            <div>
-                <PageHeader heading="Register"/>
-                <Segment className='page-loader' style={{display: this.state.isLoading ? 'block' : 'none'}}>
-                    <Dimmer active inverted>
-                        <Loader size='large'>Resetting Password...</Loader>
-                    </Dimmer>
-                </Segment>
 
-                <Grid
-                    textAlign='center'
-                    verticalAlign='middle'
-                    className='login-form'
-                >
-                    <Grid.Column style={{maxWidth: '450px'}}>
-                        <Header as='h2' color='teal' textAlign='center'>
-                            Reset your password
-                        </Header>
-                        {this.state.responseError.isError && <Message negative>
-                            <Message.Content>
-                                {this.state.responseError.text}
-                            </Message.Content>
-                        </Message>}
-                        {this.state.isSuccess && <Message positive>
-                            <Message.Content>
-                                Reset Successfully ! <Link to='/login' replace>Login</Link> here
-                            </Message.Content>
-                        </Message>}
-                        <Form size='large'>
-                            <Segment stacked>
-                                <Form.Input
-                                    fluid
-                                    icon='lock'
-                                    iconPosition='left'
-                                    name='password'
-                                    placeholder='New password'
-                                    type='password'
-                                    onChange={this.handleChange}
-                                />
-                                {errors.has('password') && <Header size='tiny' className='custom-error' color='red'>
-                                    {errors.first('password')}
-                                </Header>}
-                                <Form.Input
-                                    fluid
-                                    icon='refresh'
-                                    iconPosition='left'
-                                    name='password_confirmation'
-                                    placeholder='Confirm new password'
-                                    type='password'
-                                    onChange={this.handleChange}
-                                />
-                                {errors.has('password_confirmation') &&
-                                <Header size='tiny' className='custom-error' color='red'>
-                                    {errors.first('password_confirmation')}
-                                </Header>}
-                                <Button color='teal' fluid size='large' onClick={this.handleSubmit}>Change Password</Button>
-                            </Segment>
-                        </Form>
-                    </Grid.Column>
-                </Grid>
+        const {errors} = this.state;
+
+        return (
+
+            <div className="container mt-5 mh-100">
+                <PageHeader heading="Password reset page"/>
+                    <div className="row align-items-center mt-3">
+                        <div className="col-md-6 col-lg-4">
+                          <Card className="p-4">
+                            <Link to='/' className="bp3-text-small" replace>Back to home</Link>
+                            <h4 className={"bp3-heading"}>Change your password</h4>
+                            <form onSubmit={this.handleSubmit}>
+                                    <FormGroup
+                                        helperText={errors.has('password') && errors.first('password')}
+                                        labelFor="password"
+                                        intent='danger'
+                                        className="mb-1"
+                                    >
+                                        <InputGroup value={this.state.credentials.password} type="password" large className={errors.has('password') && 'bp3-intent-danger'} id="password" name="password" placeholder="New Password" disabled={this.state.isLoading} onChange={this.handleChange} />
+                                    </FormGroup>
+
+                                    <FormGroup
+                                        helperText={errors.has('password_confirmation') && errors.first('password_confirmation')}
+                                        labelFor="password_confirmation"
+                                        intent='danger'
+                                        className="mb-1"
+                                    >
+                                        <InputGroup value={this.state.credentials.password_confirmation} type="password" large className={errors.has('password_confirmation') && 'bp3-intent-danger'} id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" disabled={this.state.isLoading} onChange={this.handleChange} />
+                                    </FormGroup>
+                                    <Button fill intent="primary" type="submit" className="mt-4" loading={this.state.isLoading}>Change Password</Button>
+                                    {(this.state.responseError.isError && this.state.responseError.message && !this.state.responseError.errors) && <Callout className="mt-1" intent="danger">
+                                        {this.state.responseError.message}
+                                    </Callout>}
+
+                                    {(this.state.responseError.isError && this.state.responseError.errors) && <Callout className="mt-1" intent="danger">
+                                        {this.state.responseError.errors.password[0]}
+                                    </Callout>}
+                                    {(this.state.isSuccess && !this.state.responseError.isError) && <Callout className="mt-1" intent="success">
+                                        We've successfully changed your password. We know you might forget your password so we send it to your e-mail. *wink*
+                                    </Callout>}
+                            </form>
+                            </Card>
+                        </div>
+                    </div>
             </div>
         );
     }

@@ -11,15 +11,8 @@
 |
 */
 
-use App\User;
-use Spatie\Permission\Models\Role;
 
 Route::get('/redirect/{social}','Auth\LoginController@socialLogin')->where('social','twitter|facebook|linkedin|google|graph');
-
-Route::get('/assign-admin', function () {
-  $user = User::find(2);
-  $user->assignRole(1);
-});
 
 // Route::domain('register.' . env('APP_DOMAIN'))->group(function () {
 	

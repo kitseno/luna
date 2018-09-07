@@ -72,6 +72,8 @@ class Page extends React.Component {
                 this.setState({
                     isSuccess: true,
                 });
+
+                this.setState({credentials: { email: '' }});
             })
             .catch(({error, statusCode}) => {
                 const responseError = {
@@ -83,6 +85,8 @@ class Page extends React.Component {
                 this.setState({
                     isLoading: false
                 });
+
+                this.setState({credentials: { email: '' }});
             })
     }
 
@@ -101,6 +105,7 @@ class Page extends React.Component {
                 <Redirect to={from}/>
             )
         }
+        
         const {errors} = this.state;
 
         const email_error = errors.has('email') && errors.first('email');
@@ -120,7 +125,7 @@ class Page extends React.Component {
                                         intent='danger'
                                         className="mb-1"
                                     >
-                                        <InputGroup large className={errors.has('email') && 'bp3-intent-danger'} id="email" name="email" placeholder="E-mail address" disabled={this.state.isLoading} onChange={this.handleChange} />
+                                        <InputGroup large value={this.state.credentials.email} className={errors.has('email') && 'bp3-intent-danger'} id="email" name="email" placeholder="E-mail address" disabled={this.state.isLoading} onChange={this.handleChange} />
                                     </FormGroup>
                                     <Button fill intent="primary" type="submit" loading={this.state.isLoading}>Reset Password</Button>
                                     {this.state.responseError.isError && <Callout className="mt-1" intent="danger">

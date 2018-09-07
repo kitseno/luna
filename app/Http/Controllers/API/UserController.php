@@ -43,7 +43,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         
-        if ($request->user()->can('Add User')) {
+        if ($request->user()->can('Create User')) {
 
             $validator = Validator::make($request->all(), [
                 'name'      => 'required|min:3',

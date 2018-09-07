@@ -13,6 +13,8 @@ import ReeValidate from 'ree-validate'
 import {AuthService} from '../../services'
 import PageHeader from '../../common/pageHeader'
 
+import ability from '../../utils/casl/ability'
+
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -75,7 +77,7 @@ class Page extends React.Component {
 
     submit(credentials) {
         this.props.dispatch(AuthService.register(credentials))
-            .then((result)  => {
+            .then((res)  => {
 
                 this.setState({
                     isLoading: false
@@ -93,6 +95,10 @@ class Page extends React.Component {
                 
                 // reset form credentials
                 this.setState({credentials});
+
+                if (res.user) {
+                    ability.update(res.user.scopes);
+                }
             })
             .catch(({error, statusCode}) => {
                 const responseError = {

@@ -14,8 +14,8 @@ use Illuminate\Http\Request;
 */
 
 Route::group(['prefix' => 'password'], function() {
-	Route::post('/email', 'Auth\ForgotPasswordController@getResetToken');
-	Route::post('/reset', 'Auth\ResetPasswordController@reset');
+    Route::post('create', 'Auth\PasswordResetController@create');
+    Route::post('reset', 'Auth\PasswordResetController@reset');
 });
 
 Route::group(['prefix'=> 'auth'], function() {
@@ -29,11 +29,16 @@ Route::group(['prefix'=> 'auth'], function() {
     Route::delete('/logout', 'Auth\LoginController@logout')
     	->name('auth.logout')
     	->middleware('auth:api');
+
 });
 
-Route::resource('users', 'API\UserController')->middleware('auth:api');
-Route::resource('roles', 'API\RoleController')->middleware('auth:api');
-Route::resource('permissions', 'API\PermissionController')->middleware('auth:api');
+Route::group(['middleware'=> 'auth:api'], function() {
+    Route::resource('users', 'API\UserController');
+    Route::resource('roles', 'API\RoleController');
+    Route::resource('permissions', 'API\PermissionController');
+});
+
+
 
 // Route::group(['prefix'=> 'users', 'middleware' => 'auth:api'], function() {
 //     // Route::match(['put', 'patch'], '/{id}', 'Api\UserController@update')->name('users.update');

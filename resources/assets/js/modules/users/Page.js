@@ -47,17 +47,16 @@ class Page extends React.Component {
         }
 
         this.handleCreateUser = this.handleCreateUser.bind(this);
-
-        console.log(this.state.componentLoading)
-    }
-
-    componentWillMount() { 
-        this.fetchUsers();
     }
 
     componentDidMount() {
+        this.fetchUsers();
+        this._mounted = true;
     }
 
+    componentWillUnmount() {
+       this._mounted = false;
+    }
 
     componentWillReceiveProps(nextProps) {
     }
@@ -76,14 +75,18 @@ class Page extends React.Component {
         dispatch(UserService.getUsers(page))
             .then((result)  => {
                 // console.log(result);
-                this.setState({
-                    users: result.data.data,
-                    pagination: {
-                        links: result.links,
-                        meta: result.meta,
-                    }
-                });
-                this.setState({ loading: false });
+                if (this._mounted) {
+
+                    this.setState({
+                        users: result.data.data,
+                        pagination: {
+                            links: result.links,
+                            meta: result.meta,
+                        }
+                    });
+
+                    this.setState({ loading: false });
+                }
             })
             .catch(({error, statusCode}) => {
                 console.log(error)
