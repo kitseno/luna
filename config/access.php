@@ -51,5 +51,9 @@ return [
          * false is off
          */
         'password_expires_days' => env('PASSWORD_EXPIRES_DAYS', 30),
+
+        'token_expires_days' => env('TOKEN_EXPIRES_DAYS', 15),
+
+        'refresh_token_expires_days' => env('REFRESH_TOKEN_EXPIRES_DAYS', 30),
     ],
 ];
