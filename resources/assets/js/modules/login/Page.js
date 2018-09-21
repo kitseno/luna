@@ -31,7 +31,6 @@ class Page extends React.Component {
                 password: ''
             },
             responseError: {
-                isError: false,
                 code: '',
                 text: '',
             },
@@ -67,6 +66,10 @@ class Page extends React.Component {
                     });
                     this.submit(credentials);
                 }
+            })
+            .then(error => {
+                const {errors} = this.validator;
+                this.setState({errors: errors, credentials})
             });
     }
 
@@ -80,15 +83,19 @@ class Page extends React.Component {
               Toast.show({message: "You\'re logged in, "+res.user.name+"!", icon: "tick", intent: "success"});
             })
             .catch(({error, statusCode}) => {
+
+                console.log(error);
+
                 const responseError = {
                     isError: true,
                     code: statusCode,
-                    text: error,
+                    error: error
                 };
-                this.setState({responseError});
-                this.setState({
-                    isLoading: false
+
+                this.setState({responseError}, () => {
+                    this.setState({isLoading: false});
                 });
+                
             })
 
     }
@@ -150,8 +157,12 @@ class Page extends React.Component {
                                     {
                                         this.state.responseError.isError &&
                                         <Callout className="mt-1" intent="danger">
-                                            {this.state.responseError.text.message ? this.state.responseError.text.message : this.state.responseError.text}
-                                            {this.state.responseError.text == 'User not yet registered.' && <Link to="register" replace className="ml-1">Sign up here</Link>}
+                                            {
+                                                this.state.responseError.error.message ?
+                                                <div dangerouslySetInnerHTML={{ __html: this.state.responseError.error.message }}/>
+                                                :
+                                                <div dangerouslySetInnerHTML={{ __html: this.state.responseError.error.email }}/>
+                                            }
                                         </Callout>
                                     }
                                     <Link className="bp3-text-small" to='/forgot-password' replace>Forgot your password?</Link>

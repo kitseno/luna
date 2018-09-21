@@ -1,15 +1,8 @@
 import React from 'react'
-import {
-    Button,
-    Container,
-    Grid,
-    Header,
-    Icon,
-    Responsive,
-    Segment,
-    Step
-} from 'semantic-ui-react'
+import PropTypes from 'prop-types'
+
 import Admin from '../../layouts/admin'
+
 
 class Page extends React.Component {
     constructor(props) {
@@ -19,10 +12,14 @@ class Page extends React.Component {
     render() {
         return (
             <Admin path={this.props.location.pathname}>
-                <Header as='h3'>Settings</Header>
+                <h4>Settings</h4>
             </Admin>
         );
     }
 }
+
+Page.propTypes = {
+    dispatch: PropTypes.func.isRequired,
+};
 
 export default Page;

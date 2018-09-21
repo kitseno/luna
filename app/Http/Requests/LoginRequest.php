@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateUser extends FormRequest
+class LoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class CreateUser extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,15 @@ class CreateUser extends FormRequest
     public function rules()
     {
         return [
-            //
+            'email'     => 'required|email|exists:users,email',
+            'password'  => 'required|min:6'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'email.exists' => __('api.user.not_registered', ['email' => $this->get('email')])
         ];
     }
 }

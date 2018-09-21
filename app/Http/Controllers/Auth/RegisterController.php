@@ -6,8 +6,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Http\Requests\RegisterRequest;
 use Illuminate\Auth\Events\Registered;
-use GuzzleHttp\Client;
 use Validator;
 use App\User;
 
@@ -26,77 +26,33 @@ class RegisterController extends Controller
     */
 
 
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|min:3',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6|confirmed',
-            'password_confirmation' => 'required|min:6'
-        ], [
-            'password.confirmed' => 'The password does not match.'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                "error" => 'validation_error',
-                "message" => $validator->errors(),
-            ], 422);
-        }
 
         try {
 
+            // Try creating new user
             $newUser = User::createUserWithProfile($request->all());
 
-            if (config('access.users.confirm_email') || config('access.users.requires_approval')) {
-                
-                event(new Registered($newUser));
+            // Event new registered user
+            event(new Registered($newUser));
 
-                return response()->json(['status','Registered successfully! Please check your email for confirmation.'],200);
-            } else {
-
-                event(new Registered($newUser));
-                
-                $http = new Client;
-                
-                $response = $http->post(env('APP_URL') . '/oauth/token', [
-                    'verify' => false,
-                    'form_params' => [
-                        'grant_type' => 'password',
-                        'client_id' => env('PASSWORD_CLIENT_ID'),
-                        'client_secret' => env('PASSWORD_CLIENT_SECRET'),
-                        'username' => $request->get('email'),
-                        'password' => $request->get('password'),
-                        'remember' => false,
-                        'scope' => '',
-                    ],
-                ]);
-
-                $user = User::where('email', $request->get('email'))
-                        ->first();
-
-                $user_array = [
-                    'id'            => $user->id,
-                    'email'         => $user->email,
-                    'name'          => $user->name,
-                    'created_at'    => date($user->created_at),
-                    'updated_at'    => date($user->updated_at),
-                    'deleted_at'    => date($user->deleted_at),
-                    
-                    // Check if user has permission to access admin panel
-                    // Assign boolean using permission
-                    'is_admin'  => $user->hasPermissionTo('View Admin'),
-
-                    // Add scope permissions
-                    'scopes'    => $user->getAllPermissionsName(),
-                ];
+            // Check if user need to verify email if not app will try to login the new user
+            if (!config('access.users.verify_email')) {
+                // Login user
+                $userLogin = $newUser->login($request->only(['email', 'password']));
 
                 return response()->json([
-                  'user' => $user_array,
-                  'token'=> json_decode((string) $response->getBody(), true)['access_token'],
+                  'user' => $userLogin['data'],
+                  'token'=> $userLogin['token'],
                 ], 200);
 
             }
+
+            // Send Email for Verification
+            // $newUser->sendEmailVerificationNotification();
+
+            return response()->json(['message','Registered successfully! Please check your email for confirmation.'],200);
             
         } catch (\Exception $e) {
             dd($e->getMessage(), $e->getCode(), $e->getTrace());

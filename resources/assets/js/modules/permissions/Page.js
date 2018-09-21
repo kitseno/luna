@@ -231,6 +231,8 @@ class Page extends React.Component {
                 {addMoreRoleDialog}
                 {addMorePermissionDialog}
 
+                <h4 className="mb-4">Roles & Permissions</h4>
+
                 <Can not I="Administer" a="Permissions">
                     <div className={this.state.checkingAuth ? 'd-none' : 'd-block'}>Sorry, you don't have enough access to view this module.</div>
                 </Can>
@@ -239,8 +241,6 @@ class Page extends React.Component {
                     <div className="row no-gutters animated fadeIn">
                         <div className="card col-xl-6 col-lg-9 col-md-12 col-sm-12">
                             <div className="card-body">
-                                <h5 className="card-title">Roles & Permissions</h5>
-
                                 <div className="row">
                                   <div className="col-4">
                                     <h6>Roles</h6>

@@ -22,7 +22,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->rememberToken();
 
-            $table->boolean('confirmed')->default(config('access.users.confirm_email') ? false : true);
+            $table->timestamp('email_verified_at')->nullable();
 
             $table->string('timezone')->nullable();
             $table->timestamp('last_login_at')->nullable();

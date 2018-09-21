@@ -8,6 +8,8 @@ use App\User;
 use App\Http\Resources\User as UserResource;
 use App\Http\Resources\UserCollection;
 
+use App\Http\Requests\CreateUserRequest;
+
 use App\Http\Requests\ChangeUserProfile;
 use Illuminate\Auth\Events\Registered;
 use Validator;
@@ -40,38 +42,9 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreateUserRequest $request)
     {
-        
-        if ($request->user()->can('Create User')) {
-
-            $validator = Validator::make($request->all(), [
-                'name'      => 'required|min:3',
-                'email'     => 'required|email|unique:users,email',
-                'password'  => 'required|min:6',
-                'role'      => 'required'
-            ], [
-                'role.required' => 'You must not leave the role blank.',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    "error" => 'validation_error',
-                    "message" => $validator->errors(),
-                ], 422);
-            }
-
-            try {
-
-                return User::createUserWithProfile($request->all())->sendResponse();
-
-            } catch (\Exception $e) {
-
-            }
-
-        } else {
-            return response()->json(['error' => 'Unauthorized', 'message' => "You're not allowed to create user."], 402);
-        }
+        return User::createUserWithProfile($request->all())->sendResponse();
     }
 
     /**

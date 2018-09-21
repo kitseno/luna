@@ -100,9 +100,15 @@ export function create(data) {
                         error: null,
                         statusCode,
                     };
-                    if (statusCode === 401 || statusCode === 422 || statusCode === 402) {
+                    if (
+                        statusCode === 401 ||
+                        statusCode === 402 ||
+                        statusCode === 403 ||
+                        statusCode === 422
+                    ) {
                         // status 401 means unauthorized
                         // status 422 means unprocessable entity
+                        // status 403 Forbidden
                         data.error = err.response.data;
                     }
 

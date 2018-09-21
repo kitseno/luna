@@ -157,18 +157,14 @@ class Page extends React.Component {
                 Toast.show({message: "Successfully created new user "+res.user.name+" ("+res.user.email+").", icon: "tick", intent: "success"});
             })
             .catch(({error, statusCode}) => {
-
-                if (statusCode == 402) {
+                
+                if (statusCode == 403) {
                     Toast.show({message: error.message, icon: "warning", intent: "warning"});
                 } else if (statusCode == 422) {
-                    console.log(error);
-                    this.setState({createUserError: error});
+                    this.setState({createUserError: error.errors});
                 }
 
             })
-
-        console.log(event.loaded);
-        
     }
 
     restoreUser(id) {
@@ -209,31 +205,31 @@ class Page extends React.Component {
                         <div className="row">
                             <div className="col-7">
                                 <FormGroup
-                                    helperText={this.state.createUserError && this.state.createUserError.message.name}
+                                    helperText={this.state.createUserError && this.state.createUserError.name}
                                     labelFor="name"
                                     intent='danger'
                                     className="mb-1"
                                 >
-                                    <InputGroup intent={(this.state.createUserError && this.state.createUserError.message.name? 'danger':'')} id="name" name="name" placeholder="Name (required)" />
+                                    <InputGroup intent={(this.state.createUserError && this.state.createUserError.name? 'danger':'')} id="name" name="name" placeholder="Name (required)" />
                                 </FormGroup>
 
                                 <FormGroup
-                                    helperText={this.state.createUserError && this.state.createUserError.message.email}
+                                    helperText={this.state.createUserError && this.state.createUserError.email}
                                     labelFor="email"
                                     intent='danger'
                                     className="mb-1"
                                 >
-                                    <InputGroup intent={(this.state.createUserError && this.state.createUserError.message.email? 'danger':'')} id="email" name="email" placeholder="E-mail address (required)" />
+                                    <InputGroup intent={(this.state.createUserError && this.state.createUserError.email? 'danger':'')} id="email" name="email" placeholder="E-mail address (required)" />
                                 </FormGroup>
 
                                 <FormGroup
-                                    helperText={this.state.createUserError && this.state.createUserError.message.password}
+                                    helperText={this.state.createUserError && this.state.createUserError.password}
                                     labelFor="password"
                                     intent='danger'
                                     className="mb-1"
                                 >
                                     <InputGroup
-                                        intent={(this.state.createUserError && this.state.createUserError.message.password? 'danger':'')}
+                                        intent={(this.state.createUserError && this.state.createUserError.password? 'danger':'')}
                                         type={this.state.togglePassword ? 'text' : 'password'}
                                         id="password"
                                         name="password"
@@ -251,7 +247,7 @@ class Page extends React.Component {
                             </div>
                             <div className="col-5">
                                 <FormGroup
-                                    helperText={this.state.createUserError && this.state.createUserError.message.role}
+                                    helperText={this.state.createUserError && this.state.createUserError.role}
                                     labelFor="role"
                                     intent='danger'
                                     className="mb-1"

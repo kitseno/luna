@@ -29,9 +29,11 @@ class Admin extends React.Component {
               <Header path={path}/>
               <LeftSidebar path={path}/>
               <section className="content">
+                <div className="container m-auto p-0">
                   { this.props.children }
+                </div>
               </section>
-              <Footer/>
+              {/* <Footer/> */}
             </div>
         );
 

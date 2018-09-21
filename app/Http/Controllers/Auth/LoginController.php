@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Http\Requests\LoginRequest;
+
 use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
 use App\User;
@@ -29,74 +31,34 @@ class LoginController extends Controller
     |
     */
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        
-        $validator = \Validator::make($request->only(['email','password']), [
-            'email' => 'required|email|exists:users,email',
-            'password' => 'required|min:6'
-        ], [
-            'email.exists' => 'User not yet registered.'
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                "error" => 'validation_error',
-                "message" => $validator->errors()->all(),
-            ], 422);
-        }
-
-        try {
-
-            $http = new Client;
-            // $headers = ['Accept' => 'application/json'];
-            $response = $http->post(env('APP_URL') . '/oauth/token', [
-                // 'headers' => $headers,
-                'verify' => false,
-                'form_params' => [
-                    'grant_type' => 'password',
-                    'client_id' => env('PASSWORD_CLIENT_ID'),
-                    'client_secret' => env('PASSWORD_CLIENT_SECRET'),
-                    'username' => $request->get('email'),
-                    'password' => $request->get('password'),
-                    // 'remember' => $request->get('remember'),
-                    'remember' => false,
-                    'scope' => '',
-                ],
-            ]);
-
-            $user = User::where('email', $request->get('email'))
+        // Get user where email address
+        $user = User::where('email', $request->get('email'))
                     ->first();
 
-            $user_array = [
-                'id'            => $user->id,
-                'email'         => $user->email,
-                'name'          => $user->name,
-                'created_at'    => date($user->created_at),
-                'updated_at'    => date($user->updated_at),
-                'deleted_at'    => date($user->deleted_at),
-                
-                // Check if user has permission to access admin panel
-                // Assign boolean using permission
-                'is_admin'  => $user->hasPermissionTo('View Admin'),
+        // Try to login user
+        $userLogin = $user->login($request->only(['email', 'password']));
 
-                // Add scope permissions
-                'scopes'    => $user->getAllPermissionsName(),
-            ];
+        
+        if (isset($userLogin->error)) return response()->json($userLogin, 401);
 
-            event(new UserLogin($user));
-
+        // Check if the user has already verified email
+        if (!$user->hasVerifiedEmail()) {
             return response()->json([
-              'user' => $user_array,
-              'token'=> json_decode((string) $response->getBody(), true)['access_token'],
-            ], 200);
-
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
-            return response()->json([
-                'error' => 'invalid_credentials',
-                'message' => json_decode((string) $e->getResponse()->getBody()->getContents(), true)
+                "error" => 'email_not_verified',
+                "message" => __('auth.email_unverified'),
             ], 401);
         }
+
+        // Event user logged in
+        event(new UserLogin($user));
+
+        return response()->json([
+              'user' => $userLogin['data'],
+              'token'=> $userLogin['token'],
+            ], 200);
     }
 
     public function logout(Request $request)
@@ -113,7 +75,7 @@ class LoginController extends Controller
 
         event(new UserLogout($request->user()));
 
-        return response()->json(['message' => '`I guess I\'m kinda hoping you\'ll come back over the rail and get me off the hook here.` - Titanic, Jack, Leonardo DiCarpio'], 201);
+        return response()->json(['message' => __('auth.logout')], 201);
     }
 
     public function socialLogin($social)

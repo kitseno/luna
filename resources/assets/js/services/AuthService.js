@@ -12,16 +12,20 @@ export function login(credentials) {
                     dispatch(action.updateUser(res.data));
                     return resolve(res.data);
                 })
-                .catch(err => {
-                    const statusCode = err.response.status;
+                .catch(({response}) => {
+
+                    const statusCode = response.status;
                     const data = {
                         error: null,
                         statusCode,
                     };
-                    if (statusCode === 401 || statusCode === 422) {
+
+                    if (statusCode === 401) {
                         // status 401 means unauthorized
+                        data.error = response.data;
+                    } else if (statusCode === 422) {
                         // status 422 means unprocessable entity
-                        data.error = err.response.data.message;
+                        data.error = response.data.errors;
                     }
                     return reject(data);
                 })
@@ -125,19 +129,18 @@ export function register(credentials) {
 
                     return resolve(res.data);
                 })
-                .catch(err => {
-                    const statusCode = err.response.status;
+                .catch(({response}) => {
+                    
+                    console.log(response.data);
+
+                    const statusCode = response.status;
                     const data = {
                         error: null,
                         statusCode,
                     };
-                    if (statusCode === 422) {
-                        Object.values(err.response.data.message).map((value,i) => {
-                            data.error = value
-                        });
 
-                    } else if (statusCode === 400) {
-                        data.error = err.response.data.message;
+                    if (statusCode === 422 || statusCode === 400) {
+                        data.error = response.data;
                     }
                     return reject(data);
                 })

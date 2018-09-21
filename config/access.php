@@ -17,7 +17,7 @@ return [
         /*
          * Whether or not the user has to confirm their email when signing up
          */
-        'confirm_email' => env('CONFIRM_EMAIL', false),
+        'verify_email' => env('VERIFY_EMAIL', false),
         /*
          * Whether or not the users email can be changed on the edit profile screen
          */
@@ -55,5 +55,11 @@ return [
         'token_expires_days' => env('TOKEN_EXPIRES_DAYS', 15),
 
         'refresh_token_expires_days' => env('REFRESH_TOKEN_EXPIRES_DAYS', 30),
+
+        /*
+         * How many days before token for the confirm email will expire
+         * Default: 5
+         */
+        'confirm_email_token_expires_days' => env('CONFIRM_EMAIL_TOKEN_EXPIRES_DAYS', 5),
     ],
 ];

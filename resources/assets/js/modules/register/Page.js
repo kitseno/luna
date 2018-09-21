@@ -26,6 +26,16 @@ class Page extends React.Component {
             password_confirmation: 'required|min:6',
         });
 
+        const dict = {
+            custom: {
+                password_confirmation: {
+                    'required': 'The confirm password field is required.',
+                }
+            }
+        };
+
+        this.validator.localize('en', dict);
+
         this.state = {
             credentials: {
                 name: '',
@@ -72,6 +82,10 @@ class Page extends React.Component {
                     });
                     this.submit(credentials);
                 }
+            })
+            .then(error => {
+                const {errors} = this.validator;
+                this.setState({errors: errors, credentials})
             });
     }
 
@@ -101,10 +115,13 @@ class Page extends React.Component {
                 }
             })
             .catch(({error, statusCode}) => {
+
+                console.log(error);
+
                 const responseError = {
                     isError: true,
                     code: statusCode,
-                    text: error
+                    errors: error.errors
                 };
                 this.setState({responseError});
                 this.setState({
@@ -149,9 +166,14 @@ class Page extends React.Component {
                           <Card className="p-4">
                             <Link to='/' className="bp3-text-small" replace>Back to home</Link>
                             <h4 className={"bp3-heading"}>Sign up for new account</h4>
-                                {this.state.responseError.isError && <Callout intent="danger">
-                                    {this.state.responseError.text}
-                                </Callout>}
+                                {
+                                    this.state.responseError.isError &&
+                                    <Callout intent="danger">
+                                        {this.state.responseError.errors.name && <p>{this.state.responseError.errors.name}</p>}
+                                        {this.state.responseError.errors.password && <p>{this.state.responseError.errors.password}</p>}
+                                        {this.state.responseError.errors.email && <p>{this.state.responseError.errors.email}</p>}
+                                    </Callout>
+                                }
                                 <form>
                                     <FormGroup
                                         helperText={name_error}
@@ -185,7 +207,7 @@ class Page extends React.Component {
                                         labelFor="password_confirmation"
                                         intent='danger'
                                     >
-                                        <InputGroup large type="password" value={password_confirmation} className={errors.has('password_confirmation') && 'bp3-intent-danger'} id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" disabled={this.state.isLoading} onChange={this.handleChange} />
+                                        <InputGroup large type="password" value={password_confirmation} className={errors.has('password_confirmation') && 'bp3-intent-danger'} id="password_confirmation" name="password_confirmation" placeholder="Confirm password" disabled={this.state.isLoading} onChange={this.handleChange} />
                                     </FormGroup>
                                     <Button fill intent="primary" onClick={this.handleSubmit} loading={this.state.isLoading}>Sign up</Button>
                                     {this.state.isSuccess && <Callout className="mt-1" intent="success">

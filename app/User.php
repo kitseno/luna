@@ -9,8 +9,12 @@ use App\Notifications\ResetPassword as ResetPasswordNotification;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-class User extends Authenticatable
+use GuzzleHttp\Client;
+
+
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, Notifiable, HasRoles;
     use SoftDeletes;
@@ -26,6 +30,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'email_verified_at',
         'timezone',
         'last_login_at',
         'last_login_ip',
@@ -63,11 +68,11 @@ class User extends Authenticatable
     */
 
     /**
-     * @return bool
+     * @return email address
      */
-    public function isConfirmed()
+    public function getEmailAddress()
     {
-        return $this->confirmed;
+        return $this->email;
     }
 
     // Change name
@@ -128,6 +133,7 @@ class User extends Authenticatable
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
+            'email_verified_at' => (config('access.users.verify_email')) ? null : now(),
         ]);
 
         $user->profile()
@@ -141,6 +147,60 @@ class User extends Authenticatable
 
         return $user;
 
+    }
+
+    /**
+     *
+     * Login user
+     *
+     */
+
+    public function login(array $data)
+    {
+
+        try {
+
+            $http = new Client;
+                    
+            $response = $http->post(env('APP_URL') . '/oauth/token', [
+                'verify' => false,
+                'form_params' => [
+                    'grant_type' => 'password',
+                    'client_id' => env('PASSWORD_CLIENT_ID'),
+                    'client_secret' => env('PASSWORD_CLIENT_SECRET'),
+                    'username' => $data['email'],
+                    'password' => $data['password'],
+                    'remember' => false,
+                    'scope' => '',
+                ],
+            ]);
+
+            $user_array = [
+                'id'            => $this->id,
+                'email'         => $this->email,
+                'name'          => $this->name,
+                'created_at'    => date($this->created_at),
+                'updated_at'    => date($this->updated_at),
+                'deleted_at'    => date($this->deleted_at),
+                
+                // Check if user has permission to access admin panel
+                // Assign boolean using permission
+                'is_admin'  => $this->hasPermissionTo('View Admin'),
+
+                // Add scope permissions
+                'scopes'    => $this->getAllPermissionsName(),
+            ];
+
+            return [
+                        'data' => $user_array,
+                        'token' => json_decode((string) $response->getBody(), true)['access_token']
+                    ];
+
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+
+            return json_decode((string) $e->getResponse()->getBody(), false);
+
+        }
     }
 
     

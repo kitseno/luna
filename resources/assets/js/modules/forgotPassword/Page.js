@@ -60,6 +60,10 @@ class Page extends React.Component {
                     });
                     this.submit(credentials);
                 }
+            })
+            .then(error => {
+                const {errors} = this.validator;
+                this.setState({errors: errors, credentials})
             });
     }
 

@@ -18,7 +18,7 @@ export default class LeftSidebar extends Component {
         const current_path = this.props.path;
 
         return (
-            <nav className="nav flex-column left-sidebar pt-4 d-none d-sm-block" style={{'background': '#45515F'}}>
+            <nav className="nav flex-column left-sidebar pt-4 d-none d-sm-block" style={{'background': '#001234'}}>
               <Link className={"nav-item nav-link" + (current_path == '/admin/dashboard' ? ' active' : '')} to="dashboard">
                   <em className="fa fa-tachometer-alt mr-2"></em>
                   <span>Dashboard</span>
