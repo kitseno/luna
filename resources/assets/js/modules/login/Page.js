@@ -5,6 +5,7 @@ import {
         FormGroup,
         InputGroup,
         Callout,
+        Dialog,
       } from "@blueprintjs/core"
 import {Link, Redirect} from 'react-router-dom'
 import PropTypes from 'prop-types'
@@ -20,6 +21,7 @@ class Page extends React.Component {
 
     constructor(props) {
         super(props);
+
         this.validator = new ReeValidate({
             email: 'required|email',
             password: 'required|min:6'
@@ -35,11 +37,45 @@ class Page extends React.Component {
                 text: '',
             },
             isLoading: false,
-            errors: this.validator.errors
+            errors: this.validator.errors,
+
+            resendEmailVerifyDialogOpen: false,
+            resendEmailVerifySuccess: false,
+
+            emailVerificationSuccess: false,
+            emailVerificationTokenInvalid: false,
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.location.hash == '#resend') {
+            this.setState({resendEmailVerifyDialogOpen: true}, () => {
+                this.resendEmailVerification(this.state.credentials.email);
+            });
+            this.props.history.push({hash:''}); 
+        }
+    }
+
+    componentDidMount() {
+        this.setState({
+            isLoading: false
+        });
+
+        // Display email verification success
+        const {search} = this.props.location;
+        const status = search.replace("?","").split("&")[0].split("=");
+
+        console.log(status);
+        if (status[0] == 'email_verification_success') {
+            this.props.history.push('/login');
+            this.setState({emailVerificationSuccess: status[1]});
+        } else if (status[0] == 'token_invalid') {
+            this.setState({emailVerificationTokenInvalid: status[1]});
+            this.props.history.push('/login');
+        }
     }
 
     handleChange(event) {
@@ -70,6 +106,18 @@ class Page extends React.Component {
             .then(error => {
                 const {errors} = this.validator;
                 this.setState({errors: errors, credentials})
+            });
+    }
+
+    resendEmailVerification(email) {
+        this.props.dispatch(AuthService.resendEmailVerification(email))
+            .then((res) => {
+                console.log(res);
+
+                this.setState({resendEmailVerifySuccess: true});
+            })
+            .catch((err) => {
+                console.log(err);
             });
     }
 
@@ -107,12 +155,6 @@ class Page extends React.Component {
        });
     }
 
-    componentDidMount(){
-        this.setState({
-            isLoading: false
-        });
-    }
-
     render() {
         const { from } = this.props.location.state || { from: { pathname: '/' } };
         const { isAuthenticated } = this.props;
@@ -129,8 +171,29 @@ class Page extends React.Component {
         const email_error = errors.has('email') && errors.first('email');
         const password_error = errors.has('password') && errors.first('password');
 
+        const resendEmailVerifyDialog = (
+                <Dialog small isOpen={this.state.resendEmailVerifyDialogOpen} style={{padding: 0}}>
+                    <div className="bp3-dialog-body">
+                        {
+                            this.state.resendEmailVerifySuccess ?
+                            <div>
+                                <em className="fas fa-check mr-2 text-success"></em>
+                                <small>Email successfully sent! Please check your email for the link.</small>
+                                <button type="button" className="btn btn-link float-right p-0" onClick={()=>this.setState({resendEmailVerifyDialogOpen: false, resendEmailVerifySuccess: false})}><em className="fas fa-times-circle text-muted"></em></button>
+                            </div>
+                            :
+                            <div>
+                                <em className="fas fa-spinner fa-spin mr-2 text-primary"></em>
+                                <small>Resending verification email ...</small>
+                            </div>
+                        }
+                    </div>
+                </Dialog>
+            )
+
         return (
             <div className="container mt-5 mh-100">
+                {resendEmailVerifyDialog}
                 <PageHeader heading="Login page"/>
                     <div className="row align-items-center mt-3">
                         <div className="col-md-6 col-lg-4">
@@ -163,6 +226,20 @@ class Page extends React.Component {
                                                 :
                                                 <div dangerouslySetInnerHTML={{ __html: this.state.responseError.error.email }}/>
                                             }
+                                        </Callout>
+                                    }
+
+                                    {
+                                        this.state.emailVerificationSuccess &&
+                                        <Callout className="mt-1" intent="success">
+                                            Email verification success! You may now sign in to your account.
+                                        </Callout>
+                                    }
+
+                                    {
+                                        this.state.emailVerificationTokenInvalid &&
+                                        <Callout className="mt-1" intent="warning">
+                                            Verification link expired.
                                         </Callout>
                                     }
                                     <Link className="bp3-text-small" to='/forgot-password' replace>Forgot your password?</Link>

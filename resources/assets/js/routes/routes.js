@@ -8,6 +8,7 @@ import Login            from '../modules/login'
 import Register         from '../modules/register'
 import ForgotPassword   from '../modules/forgotPassword'
 import ResetPassword    from '../modules/resetPassword'
+import VerifyEmail      from '../modules/verifyEmail'
 
 // member
 import Member           from '../modules/member'

@@ -9,6 +9,7 @@ use App\Http\Resources\User as UserResource;
 use App\Http\Resources\UserCollection;
 
 use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 
 use App\Http\Requests\ChangeUserProfile;
 use Illuminate\Auth\Events\Registered;
@@ -30,10 +31,17 @@ class UserController extends Controller
                         $q->where('name', '<>', 'Super-admin');
                     })
                     ->with('roles')
+                    ->with(['tokens' => function ($q) {
+                        $q->where('revoked', false);
+                    }])
                     ->withTrashed()
                     ->paginate(10);
 
-        return new UserCollection($data);
+        $activeUsers = User::whereHas('tokens', function ($q) {
+                        $q->where('revoked', false);
+                    })->get();
+
+        return new UserCollection($data, $activeUsers);
     }
 
     /**
@@ -73,13 +81,10 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateUserRequest $request, $id)
     {
 
         $user = User::withTrashed()->findOrFail($id);
-
-        // return $user;
-
 
         if ($user) {
 
@@ -92,6 +97,12 @@ class UserController extends Controller
                               ->sendResponse();
                 break;
 
+                case 'updateUser':
+                    
+                    return $user->updateUser($request)->sendResponse();
+                    // return $user->sendResponse();
+                break;
+
                 case 'restoreUser':
                     if ($request->user()->can('Restore User')) {
                         $user->restore();
@@ -99,10 +110,20 @@ class UserController extends Controller
                         return $user->sendResponse();
                     }
                 break;
+
+                case 'revokeUserAccess':
+                    
+                    // Revoke each token access
+                    foreach ($user->tokens as $token) {
+                        $token->revoke();
+                    }
+                    return $user->sendResponse();
+                    // return $user->sendResponse();
+                break;
             }
         }
     }
-
+    
     /**
      * Remove the specified resource from storage.
      *

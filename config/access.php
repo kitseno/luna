@@ -58,8 +58,8 @@ return [
 
         /*
          * How many days before token for the confirm email will expire
-         * Default: 5
+         * Default: 1
          */
-        'confirm_email_token_expires_days' => env('CONFIRM_EMAIL_TOKEN_EXPIRES_DAYS', 5),
+        'verify_email_token_expires_days' => env('VERIFY_EMAIL_TOKEN_EXPIRES_DAYS', 1),
     ],
 ];

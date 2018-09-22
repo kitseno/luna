@@ -4,6 +4,7 @@ return [
    
     /*
      * Configurations for the password reset
+     * in minutes
      */
     'reset' => [
 

@@ -6,10 +6,12 @@ use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Notifications\ResetPassword as ResetPasswordNotification;
+use App\Notifications\EmailVerificationNotification;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Spatie\Permission\Models\Role;
 
 use GuzzleHttp\Client;
 
@@ -60,6 +62,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne('App\Profile', 'user_id');
     }
 
+    /**
+     *
+     * Verification relation ship
+     *
+     */
+    public function verification()
+    {
+        return $this->hasOne('App\Verification', 'email', 'email');
+    }
+
     /* end of eloquent relationships */
 
 
@@ -81,6 +93,18 @@ class User extends Authenticatable implements MustVerifyEmail
 
         $this->update(['name' => $request->name]);
 
+
+        return $this;
+    }
+
+    public function updateUser($request) {
+
+        $this->update([
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
+
+        $this->syncRoles([$request->role]);
 
         return $this;
     }
@@ -201,6 +225,25 @@ class User extends Authenticatable implements MustVerifyEmail
             return json_decode((string) $e->getResponse()->getBody(), false);
 
         }
+    }
+
+    /**
+     *
+     * Send email verification notification to user
+     *
+     */
+    public function sendEmailVerificationNotification()
+    {
+
+        $verification = Verification::updateOrCreate(
+            ['email' => $this->email],
+            [
+                'email'  => $this->email,
+                'token'  => str_random(150),
+            ]
+        );
+
+        $this->notify(new EmailVerificationNotification($verification->email, $verification->token));
     }
 
     

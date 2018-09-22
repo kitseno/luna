@@ -36,17 +36,22 @@ class Page extends React.Component {
             pagination: {},
             loading: false,
             removeDialog: false,
+            revokeDialog: false,
             restoreDialog: false,
             createUserDialogShown: false,
+            editUserDialogShown: false,
             removeUserName: null,
             restoreUserName: null,
             createUserError: null,
             togglePassword: true,
 
             roles: [],
+
+            editUserForm: {},
         }
 
         this.handleCreateUser = this.handleCreateUser.bind(this);
+        this.handleUpdateUser = this.handleUpdateUser.bind(this);
     }
 
     componentDidMount() {
@@ -79,6 +84,7 @@ class Page extends React.Component {
 
                     this.setState({
                         users: result.data.data,
+                        activeUsers: result.data.meta.activeUsers,
                         pagination: {
                             links: result.links,
                             meta: result.meta,
@@ -97,6 +103,10 @@ class Page extends React.Component {
         this.setState({removeDialog: true, removeUserId: id, removeUserName: name});
     }
 
+    showRevokeDialog(id, name) {
+        this.setState({revokeDialog: true, revokeUserId: id, revokeUserName: name});
+    }
+
     removeUser(id) {
 
         const { dispatch } = this.props
@@ -107,6 +117,22 @@ class Page extends React.Component {
                 this.fetchUsers();
                 this.dialogClose();
                 Toast.show({message: "Successfully removed "+res.name+"!", icon: "trash", intent: "warning"});
+            })
+            .catch( ({error, statusCode}) => {
+                console.log(error)
+            })
+    }
+
+    revokeUserAccess(id) {
+
+        const { dispatch } = this.props
+
+        dispatch(UserService.revokeUserAccess(id))
+            .then( (res) => {
+                // console.log(res);
+                this.fetchUsers();
+                this.setState({revokeDialog: false})
+                Toast.show({message: "Successfully revoked "+res.name+"!", icon: "trash", intent: "warning"});
             })
             .catch( ({error, statusCode}) => {
                 console.log(error)
@@ -167,6 +193,58 @@ class Page extends React.Component {
             })
     }
 
+    // Update User
+
+    handleUpdateUser(event) {
+
+        event.preventDefault();
+        //
+
+        const form = event.target;
+        const data = new FormData(form);
+        let formData = {};
+
+        for (let key of data.keys()) {
+            formData[key] = form.elements[key].value;
+        }
+
+        this.props
+        .dispatch(UserService.update(formData))
+            .then((res)  => {
+
+                this.fetchUsers();
+                this.setState({editUserDialogShown: false});
+                Toast.show({message: "Successfully updated new user "+res.user.name+" ("+res.user.email+").", icon: "tick", intent: "success"});
+            })
+            .catch(({error, statusCode}) => {
+                
+                if (statusCode == 403) {
+                    Toast.show({message: error.message, icon: "warning", intent: "warning"});
+                } else if (statusCode == 422) {
+                    this.setState({editUserError: error.errors});
+                }
+
+            })
+    }
+
+    openEditUserDialog(user) {
+        this.setState({editUserForm: user}, () => {
+            console.log(user);
+            const { dispatch } = this.props
+
+            dispatch(RoleService.getRoles())
+                .then((res)  => {
+                    this.setState({
+                        roles: res.roles.data,
+                    });
+                    this.setState({editUserDialogShown: true});
+                })
+                .catch(({error, statusCode}) => {
+                    // console.log(error)
+                })
+        });
+    }
+
     restoreUser(id) {
         const { dispatch } = this.props
 
@@ -192,7 +270,7 @@ class Page extends React.Component {
 
     render() {
 
-        this.createUserDialog = (
+        const createUserDialog = (
             <Dialog
                 title="Create user"
                 isOpen={this.state.createUserDialogShown}
@@ -280,7 +358,97 @@ class Page extends React.Component {
             </Dialog>
         );
 
-        this.removeDialog = (
+        const editUserDialog = (
+            <Dialog
+                title="Edit user"
+                isOpen={this.state.editUserDialogShown}
+                onClose={ () => {this.setState({editUserDialogShown: false})} }
+                canEscapeKeyClose="false"
+                canOutsideClickClose="false"
+                isCloseButtonShown="false">
+                <form onSubmit={this.handleUpdateUser} noValidate autoComplete="off">
+                    <input type="hidden" defaultValue={this.state.editUserForm.id} name="id" />
+                    <div className="bp3-dialog-body">
+                        <div className="row">
+                            <div className="col-7">
+                                <FormGroup
+                                    helperText={this.state.editUserError && this.state.editUserError.name}
+                                    labelFor="name"
+                                    intent='danger'
+                                    className="mb-1"
+                                >
+                                    <InputGroup defaultValue={this.state.editUserForm.name} intent={(this.state.editUserError && this.state.editUserError.name? 'danger':'')} id="name" name="name" placeholder="Name (required)" />
+                                </FormGroup>
+
+                                <FormGroup
+                                    helperText={this.state.editUserError && this.state.editUserError.email}
+                                    labelFor="email"
+                                    intent='danger'
+                                    className="mb-1"
+                                >
+                                    <InputGroup defaultValue={this.state.editUserForm.email} intent={(this.state.editUserError && this.state.editUserError.email? 'danger':'')} id="email" name="email" placeholder="E-mail address (required)" />
+                                </FormGroup>
+
+                                <FormGroup
+                                    helperText={this.state.editUserError && this.state.editUserError.password}
+                                    labelFor="password"
+                                    intent='danger'
+                                    className="mb-1"
+                                >
+                                    <InputGroup
+                                        intent={(this.state.editUserError && this.state.editUserError.password? 'danger':'')}
+                                        type={this.state.togglePassword ? 'text' : 'password'}
+                                        id="password"
+                                        name="password"
+                                        defaultValue={this.state.editUserForm.password}
+                                        placeholder="Change Password (optional)"
+                                        rightElement={
+                                                <button
+                                                type="button"
+                                                tabIndex="-1"
+                                                onClick={() => {this.setState({togglePassword: !this.state.togglePassword})}}
+                                                className={'bp3-button bp3-minimal bp3-intent-warning '+ (this.state.togglePassword ? 'bp3-icon-eye-open' : 'bp3-icon-eye-off')}>
+                                                </button>
+                                            }
+                                    />
+                                </FormGroup>
+                            </div>
+                            <div className="col-5">
+                                <FormGroup
+                                    helperText={this.state.editUserError && this.state.editUserError.role}
+                                    labelFor="role"
+                                    intent='danger'
+                                    className="mb-1"
+                                >
+                                    <div className="bp3-select bp3-intent-danger">
+                                      <select defaultValue={this.state.editUserForm.roles && this.state.editUserForm.roles[0].id} name="role">
+                                        <option value="" disabled readOnly>Choose a role...</option>
+                                        {
+                                            this.state.roles &&
+
+                                            this.state.roles.map( (role, key) => {
+                                                if (role.name != 'Super-admin') {
+                                                    return (<option key={key} value={role.id}>{role.name}</option>)
+                                                }
+                                            })
+                                        }
+                                      </select>
+                                    </div>
+                                </FormGroup>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bp3-dialog-footer">
+                        <div className="bp3-dialog-footer-actions">
+                            <button type="submit" className="bp3-button">Submit</button>
+                            <button type="button" className="bp3-button bp3-intent-primary" onClick={ () => {this.setState({editUserDialogShown: false})} }>Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </Dialog>
+        );
+
+        const removeDialog = (
             <Dialog title="Remove user"
                     isOpen={this.state.removeDialog}
                     onClose={ () => {this.dialogClose()} }
@@ -299,7 +467,26 @@ class Page extends React.Component {
             </Dialog>
         );
 
-        this.restoreDialog = (
+        const revokeDialog = (
+            <Dialog title="Revoke user access"
+                    isOpen={this.state.revokeDialog}
+                    onClose={ () => {this.setState({revokeDialog: false, revokeUserName: null, revokeUserId: null})} }
+                    canEscapeKeyClose="false"
+                    canOutsideClickClose="false"
+                    isCloseButtonShown="false">
+                <div className="bp3-dialog-body">
+                    <p>Are you sure you want to revoke access for '{this.state.revokeUserName}'?</p>
+                </div>
+                <div className="bp3-dialog-footer">
+                    <div className="bp3-dialog-footer-actions">
+                        <button type="button" className="bp3-button" onClick={ () => {this.revokeUserAccess(this.state.revokeUserId)} }>Revoke</button>
+                        <button type="submit" className="bp3-button bp3-intent-primary" onClick={ () => {this.setState({revokeDialog: false, revokeUserName: null, revokeUserId: null})} }>Cancel</button>
+                    </div>
+                </div>
+            </Dialog>
+        );
+
+        const restoreDialog = (
             <Dialog title="Restore user"
                     isOpen={this.state.restoreDialog}
                     onClose={ () => {this.restoreDialogClose()} }
@@ -320,9 +507,11 @@ class Page extends React.Component {
 
         return (
             <Admin path={this.props.location.pathname}>
-                {this.createUserDialog}
-                {this.removeDialog}
-                {this.restoreDialog}
+                {this.state.createUserDialogShown && createUserDialog}
+                {removeDialog}
+                {restoreDialog}
+                {this.state.revokeDialog && revokeDialog}
+                {this.state.editUserDialogShown && editUserDialog}
 
                 <div className="d-none d-sm-flex row flex-wrap mb-4">
                     <div className="col-lg-4">
@@ -347,7 +536,7 @@ class Page extends React.Component {
                         <div className="card shadow-sm">
                             <div className="card-body">
                                 <h6>Active Users</h6>
-                                <h3 className="text-muted">-</h3>
+                                <h3 className="text-muted">{this.state.activeUsers ? this.state.activeUsers : '-'}</h3>
                             </div>
                         </div>
                     </div>
@@ -392,7 +581,8 @@ class Page extends React.Component {
                                         })}</span></td>
                                         <td><span className={this.state.loading ? 'bp3-skeleton' : ''}>{moment(user.created_at).utcOffset(-8).format('MMMM DD, YYYY hh:mma')}</span></td>
                                         <td>
-                                            <Button icon="edit" className={this.state.loading ? 'bp3-skeleton' : ''}></Button>
+                                            <Button icon="edit" onClick={() => this.openEditUserDialog(user)} className={this.state.loading ? 'bp3-skeleton' : ''}></Button>
+                                            {(user.tokens && user.tokens[0]) && <Button intent="warning" className={(user.deleted_at ? 'd-none' : '') +" "+ (this.state.loading ? 'bp3-skeleton' : '')} icon="log-out" onClick={() => { this.showRevokeDialog(user.id, user.name) }}></Button>}
                                             <Button intent="danger" className={(user.deleted_at ? 'd-none' : '') +" "+ (this.state.loading ? 'bp3-skeleton' : '')} icon="trash" onClick={() => { this.showRemoveDialog(user.id, user.name) }}></Button>
                                             <Button intent="primary" className={(user.deleted_at ? '' : 'd-none') +" "+ (this.state.loading ? 'bp3-skeleton' : '')} icon="redo" onClick={() => { this.showRestoreDialog(user.id, user.name) }}></Button>
                                         </td>

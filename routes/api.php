@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -37,6 +35,8 @@ Route::group(['middleware'=> 'auth:api'], function() {
     Route::resource('roles', 'API\RoleController');
     Route::resource('permissions', 'API\PermissionController');
 });
+
+Route::post('/resend-email-verification','Auth\VerificationController@resend');
 
 
 

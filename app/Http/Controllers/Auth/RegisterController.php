@@ -50,6 +50,7 @@ class RegisterController extends Controller
             }
 
             // Send Email for Verification
+            $newUser->sendEmailVerificationNotification();
             // $newUser->sendEmailVerificationNotification();
 
             return response()->json(['message','Registered successfully! Please check your email for confirmation.'],200);
