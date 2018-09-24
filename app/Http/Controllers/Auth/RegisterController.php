@@ -36,6 +36,8 @@ class RegisterController extends Controller
 
             // Event new registered user
             event(new Registered($newUser));
+            // Send user registered notification
+            $newUser->sendUserRegisteredNotification();
 
             // Check if user need to verify email if not app will try to login the new user
             if (!config('access.users.verify_email')) {
@@ -51,9 +53,8 @@ class RegisterController extends Controller
 
             // Send Email for Verification
             $newUser->sendEmailVerificationNotification();
-            // $newUser->sendEmailVerificationNotification();
 
-            return response()->json(['message','Registered successfully! Please check your email for confirmation.'],200);
+            return response()->json(['message' => __('api.user.registered_with_verify_email')], 200);
             
         } catch (\Exception $e) {
             dd($e->getMessage(), $e->getCode(), $e->getTrace());

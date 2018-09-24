@@ -132,7 +132,7 @@ class Page extends React.Component {
                 // console.log(res);
                 this.fetchUsers();
                 this.setState({revokeDialog: false})
-                Toast.show({message: "Successfully revoked "+res.name+"!", icon: "trash", intent: "warning"});
+                Toast.show({message: "Successfully revoked access for "+res.name+"!", icon: "log-out", intent: "success"});
             })
             .catch( ({error, statusCode}) => {
                 console.log(error)

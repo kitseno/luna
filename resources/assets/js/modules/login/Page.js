@@ -68,7 +68,6 @@ class Page extends React.Component {
         const {search} = this.props.location;
         const status = search.replace("?","").split("&")[0].split("=");
 
-        console.log(status);
         if (status[0] == 'email_verification_success') {
             this.props.history.push('/login');
             this.setState({emailVerificationSuccess: status[1]});

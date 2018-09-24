@@ -5,8 +5,11 @@ namespace App;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+
 use App\Notifications\ResetPassword as ResetPasswordNotification;
 use App\Notifications\EmailVerificationNotification;
+use App\Notifications\UserRegistered as UserRegisteredNotification;
+
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -107,12 +110,6 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->syncRoles([$request->role]);
 
         return $this;
-    }
-
-    public function sendPasswordResetNotification($token)
-    {
-        // Your your own implementation.
-        $this->notify(new ResetPasswordNotification($token, $this->getEmailForPasswordReset()));
     }
 
     /* send response */
@@ -229,6 +226,18 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      *
+     * Send password reset notification
+     *
+     */
+
+     public function sendPasswordResetNotification($token)
+    {
+        // Your your own implementation.
+        $this->notify(new ResetPasswordNotification($token, $this->getEmailForPasswordReset()));
+    }
+
+    /**
+     *
      * Send email verification notification to user
      *
      */
@@ -244,6 +253,18 @@ class User extends Authenticatable implements MustVerifyEmail
         );
 
         $this->notify(new EmailVerificationNotification($verification->email, $verification->token));
+    }
+
+    /**
+     *
+     * Send email verification notification to user
+     *
+     */
+    public function sendUserRegisteredNotification()
+    {
+        $this->notify(new UserRegisteredNotification());
+
+        return $this;
     }
 
     

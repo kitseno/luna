@@ -130,6 +130,8 @@ class LoginController extends Controller
                 $user->assignRole('member');
                 // return $user;
             }
+
+            // $user->sendUserRegisteredNotification();
         }
 
         // $user_details = User::find($user->id);

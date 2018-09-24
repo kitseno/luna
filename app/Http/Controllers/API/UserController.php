@@ -52,7 +52,11 @@ class UserController extends Controller
      */
     public function store(CreateUserRequest $request)
     {
-        return User::createUserWithProfile($request->all())->sendResponse();
+        return User::createUserWithProfile($request->all())
+                // Send user registered notification
+                ->sendUserRegisteredNotification()
+                // return response
+                ->sendResponse();
     }
 
     /**

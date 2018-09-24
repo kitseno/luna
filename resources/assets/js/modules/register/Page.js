@@ -49,6 +49,7 @@ class Page extends React.Component {
                 text: ''
             },
             isSuccess: false,
+            responseSuccess: '',
             isLoading: false,
             errors: this.validator.errors
         };
@@ -109,6 +110,8 @@ class Page extends React.Component {
                 
                 // reset form credentials
                 this.setState({credentials});
+
+                this.setState({responseSuccess: res.message});
 
                 if (res.user) {
                     ability.update(res.user.scopes);
@@ -211,7 +214,7 @@ class Page extends React.Component {
                                     </FormGroup>
                                     <Button fill intent="primary" onClick={this.handleSubmit} loading={this.state.isLoading}>Sign up</Button>
                                     {this.state.isSuccess && <Callout className="mt-1" intent="success">
-                                        Sign up Successfully ! <Link to='/login' replace>Log in</Link> here
+                                        <div dangerouslySetInnerHTML={{ __html: this.state.responseSuccess}}/>
                                     </Callout>}
                                 </form>
                         <Callout className="mt-4">
