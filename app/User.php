@@ -187,8 +187,8 @@ class User extends Authenticatable implements MustVerifyEmail
                 'verify' => false,
                 'form_params' => [
                     'grant_type' => 'password',
-                    'client_id' => env('PASSWORD_CLIENT_ID'),
-                    'client_secret' => env('PASSWORD_CLIENT_SECRET'),
+                    'client_id' => $data['client_id'] ?? env('PASSWORD_CLIENT_ID'),
+                    'client_secret' => $data['client_secret'] ?? env('PASSWORD_CLIENT_SECRET'),
                     'username' => $data['email'],
                     'password' => $data['password'],
                     'remember' => false,

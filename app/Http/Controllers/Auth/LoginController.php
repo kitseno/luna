@@ -39,7 +39,7 @@ class LoginController extends Controller
                     ->first();
 
         // Try to login user
-        $userLogin = $user->login($request->only(['email', 'password']));
+        $userLogin = $user->login($request->only(['email', 'password', 'client_id', 'client_secret']));
 
         
         if (isset($userLogin->error)) return response()->json($userLogin, 401);
