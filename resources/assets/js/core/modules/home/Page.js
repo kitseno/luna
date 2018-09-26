@@ -15,8 +15,6 @@ class Page extends React.Component {
         const social = this.props.match.params.social
         const params = this.props.location.search
 
-        // setTimeout(function() {
-
         if (params && social) {
             this.props.dispatch(socialLogin({ params, social }))
                 .catch(({error, statusCode}) => {
@@ -31,8 +29,6 @@ class Page extends React.Component {
                 });
             })
         }
-
-        // }.bind(this), 1000);
     }
 
     render() {

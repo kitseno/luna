@@ -1,6 +1,6 @@
 import React from 'react'
 import {Route} from 'react-router'
-import Main from '../Main'
+import Main from '../../Main'
 
 
 const PublicRoute = ({component: Component, ...rest}) => (

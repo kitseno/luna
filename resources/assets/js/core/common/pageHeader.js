@@ -1,10 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {
-    Header,
-    Grid,
-    Segment
-} from 'semantic-ui-react'
 
 class PageHeader extends React.Component {
     constructor(props) {
@@ -13,9 +8,9 @@ class PageHeader extends React.Component {
 
     render() {
         return (
-            <Segment className="page-header" textAlign="center" vertical>
+            <div>
                 <h3 className="bp3-heading">{this.props.heading}</h3>
-            </Segment>
+            </div>
         );
     }
 }

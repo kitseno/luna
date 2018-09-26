@@ -1,10 +1,5 @@
 import React from 'react';
 
-import {
-    Grid,
-    Container,
-} from 'semantic-ui-react'
-
 import {connect} from 'react-redux'
 import {Redirect} from 'react-router'
 import PropTypes from 'prop-types'

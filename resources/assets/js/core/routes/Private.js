@@ -1,7 +1,7 @@
 import React from 'react'
 import {Route, Redirect} from 'react-router'
 import {connect} from 'react-redux'
-import Main from '../Main'
+import Main from '../../Main'
 
 const PrivateRoute = ({component: Component, isAuthenticated,  ...rest}) => (
     <Route {...rest} render={props => (

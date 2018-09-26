@@ -29,7 +29,7 @@ class PageHeader extends React.Component {
 
         this.avatar = (
             <span>
-              <img className="mr-2 align-text-bottom" style={{width: '20px'}} src={require('../../../images/avatar/boy.png')}/>
+              <img className="mr-2 align-text-bottom" style={{width: '20px'}} src={require('../../../../images/avatar/boy.png')}/>
               <small className="mr-2 align-text-bottom">{this.props.userName}</small>
             </span>
         );

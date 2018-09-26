@@ -1,9 +1,9 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import {APP} from './common/constants'
+import {APP} from './core/common/constants'
 
-import { AbilityContext } from './utils/casl/ability-context'
-import ability from './utils/casl/ability'
+import { AbilityContext } from './core/utils/casl/ability-context'
+import ability from './core/utils/casl/ability'
 
 class Main extends React.Component {
     constructor(props) {

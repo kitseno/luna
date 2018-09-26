@@ -1,11 +1,11 @@
 import React from 'react'
 import {render} from 'react-dom'
 import {Provider} from 'react-redux'
-import store from './store'
-import Routes from './routes'
-import * as action from './store/actions'
+import store from './core/store'
+import Routes from './core/routes'
+import * as action from './core/store/actions'
 
-import {AuthService} from './services'
+import {AuthService} from './core/services'
 
 
 store.dispatch(action.authCheck());
