@@ -7,8 +7,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 class UserCollection extends ResourceCollection
 {
     private $activeUsers;
-
-
+    
     public function __construct($collection, $activeUsers)
     {
         // Ensure you call the parent constructor

@@ -39,7 +39,6 @@ Route::group(['middleware'=> 'auth:api'], function() {
 Route::post('/resend-email-verification','Auth\VerificationController@resend');
 
 
-
 // Route::group(['prefix'=> 'users', 'middleware' => 'auth:api'], function() {
 //     // Route::match(['put', 'patch'], '/{id}', 'Api\UserController@update')->name('users.update');
 //     Route::post('/{id}', 'Api\UserController@fetch');

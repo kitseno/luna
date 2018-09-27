@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
-use App\Http\Resources\User as UserResource;
+use App\Http\Resources\UserResource;
 use App\Http\Resources\UserCollection;
 
 use App\Http\Requests\CreateUserRequest;

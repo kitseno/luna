@@ -15,6 +15,7 @@ class RouteServiceProvider extends ServiceProvider
      * @var string
      */
     protected $namespace = 'App\Http\Controllers';
+    protected $componentNamespace = 'Component\Http\Controllers';
 
     /**
      * Define your route model bindings, pattern filters, etc.
@@ -39,6 +40,7 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->mapWebRoutes();
 
+        $this->mapComponentRoutes();
         //
     }
 
@@ -69,5 +71,22 @@ class RouteServiceProvider extends ServiceProvider
              // ->middleware('api')
              ->namespace($this->namespace)
              ->group(base_path('routes/api.php'));
+    }
+
+    /**
+     * Define the "app" routes for the application.
+     *
+     * These routes are typically stateless.
+     * These routes are also for your custom app that will use the core
+     *
+     * @return void
+     */
+    protected function mapComponentRoutes()
+    {
+        if (!file_exists(base_path('component/routes/app.php'))) return false;
+        
+        Route::prefix('api')
+             ->namespace($this->componentNamespace)
+             ->group(base_path('component/routes/app.php'));
     }
 }
