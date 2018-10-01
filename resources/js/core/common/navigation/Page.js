@@ -24,7 +24,7 @@ class Page extends React.Component {
 
         this.avatar = (
             <span>
-              <img className="mr-3 align-text-middle rounded-circle" style={{width: '35px', height: '35px'}} src={require('../../../../images/avatar/kit2.jpg')}/>
+              <img className="mr-3 align-text-middle rounded-circle" style={{width: '35px', height: '35px'}} src={require('../../../../assets/images/avatar/kit2.jpg')}/>
               <small className="mr-2 align-text-middle">{this.props.userName}</small>
             </span>
         );
