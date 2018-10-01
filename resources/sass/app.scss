@@ -135,6 +135,8 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
 }
 
+
+
 /* ************************************************************************* */
 /* ------------------------- Defining Constants ---------------------------- */
 /* ************************************************************************* */
@@ -195,7 +197,7 @@ $border: solid 1px rgba(46,62,72,.12);
 /* ---------------------------------- Custom ------------------------------- */
 /* ************************************************************************* */
 
-@import "_variables";
+@import "variables";
 
 // Bootstrap
 @import "~bootstrap/scss/bootstrap";
@@ -209,6 +211,9 @@ $border: solid 1px rgba(46,62,72,.12);
 @import "~@fortawesome/fontawesome-free/scss/regular";
 @import "~@fortawesome/fontawesome-free/scss/solid";
 @import "~@fortawesome/fontawesome-free/scss/brands";
+
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Nunito');
 
 
 // Sticky footer

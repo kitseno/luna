@@ -16,7 +16,7 @@ class UsersTableSeeder extends Seeder
     {
         \App\User::create([
             'name' => 'Administrator',
-            'email' => 'admin@domain.com',
+            'email' => 'admin@luna.test',
             'password' => bcrypt('secret'),
             'email_verified_at' => now(),
             'remember_token' => str_random(10),

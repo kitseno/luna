@@ -12,7 +12,7 @@ A Laravel Boilerplate for Reactjs (16) and Laravel (5.7) with passport and socia
    - `php artisan key:generate`
    - `php artisan migrate`
    - `php artisan db:seed`
-         - (if you want to have an admin account. email: admin@domain.com | pass: secret)
+         - (if you want to have an admin account. email: admin@luna.test | pass: secret)
    - `php artisan passport:install`
 4. `npm install`
 5. `npm run dev` or `npm run watch`

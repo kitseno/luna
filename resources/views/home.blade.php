@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="{{ asset('css/vendor.css') }}">
         <link rel="stylesheet" href="{{ asset('css/app.css') }}">
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon/favicon-32x32.png') }}">
-        <title>Laravel Passport Socialite React</title>
+        <title>{{ config('component.name') }}</title>
 
     </head>
     <body>

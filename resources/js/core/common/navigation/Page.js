@@ -11,11 +11,9 @@ import { Toast } from "../toaster"
 class Page extends React.Component {
     constructor(props) {
         super(props);
-        
-        this.handleLogout = this.handleLogout.bind(this);
     }
 
-    handleLogout() {
+    handleLogout = (event) => {
         event.preventDefault();
         // this.props.dispatch(actions.authLogout());
         this.props.dispatch(logout());
@@ -46,7 +44,7 @@ class Page extends React.Component {
                         <span className="dropdown-header"><small>{"Signed in as " + this.props.userName}</small></span>
                         <Link className="dropdown-item" to="account">Account</Link>
                         <div className="dropdown-divider"></div>
-                        <button className="dropdown-item" onClick={this.handleLogout} type="button" key="logout">Sign out</button>
+                        <button className="dropdown-item" onClick={(event) => this.handleLogout(event)} type="button" key="logout">Sign out</button>
                       </div>
                     </div>
               </div>

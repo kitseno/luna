@@ -10,6 +10,13 @@
     "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
   },
   "devDependencies": {
+    "@babel/cli": "^7.1.0",
+    "@babel/core": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
+    "@casl/ability": "^2.4.2",
+    "@casl/react": "^0.8.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "cross-env": "^5.2.0",
     "laravel-mix": "^2.1.11",
@@ -17,6 +24,7 @@
     "ree-validate": "^3.0.2"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.0.0",
     "@blueprintjs/core": "^3.0.1",
     "@fortawesome/fontawesome-free": "^5.3.1",
     "axios": "^0.17.1",
@@ -28,8 +36,9 @@
     "moment": "^2.22.2",
     "popper.js": "^1.14.4",
     "prop-types": "^15.6.2",
-    "react": "^16.4.2",
-    "react-dom": "^16.4.2",
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2",
+    "react-js-pagination": "^3.0.2",
     "react-redux": "^5.0.7",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.3.1",
