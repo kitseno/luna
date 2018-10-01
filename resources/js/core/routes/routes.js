@@ -20,8 +20,6 @@ import Permissions      from '../modules/permissions'
 import Account          from '../modules/account'
 import Settings         from '../modules/settings'
 
-import RentOut          from '../../app/modules/rentout'
-
 // 
 import NoMatch          from '../modules/noMatch' //404 page not found
 
@@ -139,14 +137,6 @@ const routes = [
     /**
      * Component App
      */
-    {
-        path: '/admin/rentout',
-        exact: true,
-        auth: true,
-        middleware: ['admin'],
-        title: 'Rent Out',
-        component: RentOut
-    },
     /* 404 */
     {
         path: '',
