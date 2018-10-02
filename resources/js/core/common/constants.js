@@ -2,7 +2,7 @@
 // -----------------------------------
 
 export const APP = {
-  NAME: 'Luna Site',
+  NAME: env('app.name', 'Luna Site'),
   PANEL: 'Luna',
   PANEL_ICON: 'moon',
 };

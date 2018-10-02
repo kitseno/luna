@@ -4,9 +4,7 @@ import PropTypes from 'prop-types'
 
 import { logout } from '../../services/AuthService'
 import { APP } from '../constants'
-
 import { Toast } from "../toaster"
-
 
 class Page extends React.Component {
     constructor(props) {

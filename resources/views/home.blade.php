@@ -8,8 +8,19 @@
         <link rel="stylesheet" href="{{ asset('css/vendor.css') }}">
         <link rel="stylesheet" href="{{ asset('css/app.css') }}">
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon/favicon-32x32.png') }}">
-        <title>{{ config('component.name') }}</title>
+        <title>{{ config('component.app.name') }}</title>
+        <script>
+            var env = function (name, default_value) {
+                
+                var config = <?php
+                    echo json_encode(config('component'));
+                ?>;
 
+                var res = name.split('.').reduce(function (obj,i) {return obj[i]}, config);
+
+                return res ? res : default_value;
+            };
+        </script>
     </head>
     <body>
         <div id='app'></div>
