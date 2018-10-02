@@ -1,4 +1,3 @@
-
 // web
 import Home             from '../modules/home'
 import About            from '../modules/about'
@@ -20,10 +19,19 @@ import Permissions      from '../modules/permissions'
 import Account          from '../modules/account'
 import Settings         from '../modules/settings'
 
-// 
+// no match
 import NoMatch          from '../modules/noMatch' //404 page not found
 
-const routes = [
+// component app routes
+const ComponentAppRoutes = () => {
+    try {
+     return require('../../app/routes').default;
+    } catch (err) {
+     return [];
+    }
+};
+
+const CoreRoutes = [
     {
         path: '/',
         exact: true,
@@ -134,17 +142,20 @@ const routes = [
         title: 'Settings',
         component: Settings
     },
-    /**
-     * Component App
-     */
-    /* 404 */
-    {
-        path: '',
-        exact: true,
-        auth: false,
-        title: 'Lost in space',
-        component: NoMatch,
-    },
 ];
+
+const NoMatchRoute = {
+    /* 404 */    
+    path: '',
+    exact: true,
+    auth: false,
+    title: 'Lost in space',
+    component: NoMatch,
+};
+
+/**
+ * Compile Core, Component and NoMatch Routes
+ */
+const routes = [...CoreRoutes, ...ComponentAppRoutes(), NoMatchRoute]
 
 export default routes;
