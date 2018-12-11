@@ -20,8 +20,7 @@
     "babel-preset-react": "^6.24.1",
     "cross-env": "^5.2.0",
     "laravel-mix": "^2.1.11",
-    "redux-logger": "^3.0.6",
-    "ree-validate": "^3.0.2"
+    "redux-logger": "^3.0.6"
   },
   "dependencies": {
     "@babel/polyfill": "^7.0.0",
