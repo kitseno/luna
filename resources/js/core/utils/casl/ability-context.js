@@ -8,8 +8,8 @@ import LoadSpinner from '../../common/loadspinner'
 export const AbilityContext = createContext()
 export const Can = createContextualCan(AbilityContext.Consumer)
 
-export const CanWithLoader = ({ isLoading, ...rest, ...props }) => {
+export const CanWithLoader = ({ isLoading, ...rest }) => {
   return (
-     isLoading ? <LoadSpinner  /> : <Can {...rest}>{props.children}</Can>
+      isLoading ? <LoadSpinner  /> : <Can {...rest}>{rest.children}</Can>
   );
 }

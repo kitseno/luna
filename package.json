@@ -19,7 +19,7 @@
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "cross-env": "^5.2.0",
-    "laravel-mix": "^2.1.11",
+    "laravel-mix": "^3.0.0",
     "redux-logger": "^3.0.6"
   },
   "dependencies": {
