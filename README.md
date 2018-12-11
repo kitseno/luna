@@ -4,6 +4,9 @@
 
 A Laravel Boilerplate for Reactjs (16) and Laravel (5.7) with passport and socialite.
 
+## Notice
+Please run `php artisan migrate:seed --refresh` if you get errors after [07ad643]
+
 ## Usage :
 1. Rename `.env.example` to `.env`
 2. Update **DB_HOST**, **DB_DATABASE**, **DB_USERNAME**, **DB_PASSWORD**, and **Social IDs** in `.env` file to yours.
