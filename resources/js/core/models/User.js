@@ -11,8 +11,11 @@ class User extends Model {
   initialize(props) {
     super.initialize(props)
 
-    this.name = props.name || ''
+    this.first_name = props.first_name || ''
+    this.last_name = props.last_name || ''
     this.email = props.email || ''
+    this.avatar = props.avatar || ''
+    this.provider = props.provider || ''
     this.phone = props.phone || ''
     this.about = props.about || ''
     this.is_admin = props.is_admin || 0

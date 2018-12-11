@@ -131,7 +131,7 @@ class Page extends React.Component {
                                     >
                                         <InputGroup large value={this.state.credentials.email} className={errors.has('email') && 'bp3-intent-danger'} id="email" name="email" placeholder="E-mail address" disabled={this.state.isLoading} onChange={this.handleChange} />
                                     </FormGroup>
-                                    <Button fill intent="primary" type="submit" loading={this.state.isLoading}>Reset Password</Button>
+                                    <Button fill intent="primary" className="bg-primary" type="submit" loading={this.state.isLoading}>Reset Password</Button>
                                     {this.state.responseError.isError && <Callout className="mt-1" intent="danger">
                                         {this.state.responseError.text.message}
                                     </Callout>}

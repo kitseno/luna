@@ -1,0 +1,35 @@
+/**
+    Chat room styles
+*/
+
+.main {
+    position: fixed;
+    bottom: -1px;
+    right: 10px;
+    width: 300px;
+    border: solid 1px gainsboro;
+    background-color: white;
+    cursor: pointer;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    z-index: 9999;
+}
+
+.main:hover {
+    background-color: #fafafa;
+    color: #2481d7;
+    border-color: #2481d7;
+}
+
+.chatbox {
+    position: fixed;
+    bottom: 0px;
+    right: 10px;
+    background-color: #fff;
+    max-width: 500px;
+    width: 500px;
+    height: 300px;
+    border: solid 1px gainsboro;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+}

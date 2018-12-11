@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests\RegisterRequest;
 use Illuminate\Auth\Events\Registered;
-use Validator;
+
 use App\User;
 
 

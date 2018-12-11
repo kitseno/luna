@@ -79,9 +79,9 @@ class VerificationController extends Controller
             // Delete token at verification
             $verification->delete();
 
-            return redirect('/login?email_verification_success=true&h='.str_random(50));
+            return redirect('/login?status=email_verification_success&h='.str_random(50));
         } else {
-            return redirect('/login?token_invalid=true&h='.str_random(50));
+            return redirect('/login?status=token_invalid&h='.str_random(50));
         }
         
     }

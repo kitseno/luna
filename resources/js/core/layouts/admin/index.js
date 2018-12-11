@@ -6,7 +6,9 @@ import PropTypes from 'prop-types'
 
 import Header from '../../common/admin/Header'
 import LeftSidebar from '../../common/admin/LeftSidebar'
-import Footer from '../../common/admin/Footer'
+
+import ChatRoom from '../../common/admin/ChatRoom'
+// import Footer from '../../common/admin/Footer'
 
 class Admin extends React.Component {
 
@@ -28,6 +30,7 @@ class Admin extends React.Component {
                   { this.props.children }
                 </div>
               </section>
+              <ChatRoom />
               {/* <Footer/> */}
             </div>
         );

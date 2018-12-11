@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
+
 
 // use App\User;
 // use Spatie\Permission\Models\Role;
@@ -14,8 +16,13 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
+
+        $id = (string) Str::orderedUuid();
+
         \App\User::create([
-            'name' => 'Administrator',
+            'id' => $id,
+            'first_name' => 'Administrator',
+            'last_name' => '',
             'email' => 'admin@luna.test',
             'password' => bcrypt('secret'),
             'email_verified_at' => now(),
@@ -24,7 +31,7 @@ class UsersTableSeeder extends Seeder
 
         \App\Profile::create([
             'about' => '',
-            'user_id' => 1
+            'user_id' => $id
         ]);
     }
 }

@@ -22,7 +22,7 @@ class CreateProfileTable extends Migration
 
         Schema::create('profiles', function (Blueprint $table) {
             // $table->increments('profile_id');
-            $table->unsignedInteger('user_id');
+            $table->uuid('user_id');
             $table->string('about');
             $table->timestamps();
 

@@ -12,7 +12,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 use App\User;
 
-class Login
+class Login implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -36,6 +36,10 @@ class Login
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        return new Channel('all');
+    }
+
+    public function broadcastAs() {
+        return 'login';
     }
 }

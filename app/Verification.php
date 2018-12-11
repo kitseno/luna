@@ -9,7 +9,7 @@ class Verification extends Model
 {
     //
 
-		protected $fillable = [
+	protected $fillable = [
         'email', 'token'
     ];
 

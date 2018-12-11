@@ -41,8 +41,11 @@ const authLogin = (state, payload) => {
     } else {
         localStorage.setItem('is_admin', false);
     }
+    
     localStorage.setItem('access_token', access_token);
     Http.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+    Echo.connector.options.auth.headers['Authorization'] = `Bearer ${access_token}`;
+
     state = Object.assign({}, state, {
         isAuthenticated: true,
         isAdmin: localStorage.getItem('is_admin') === 'true',
@@ -53,7 +56,7 @@ const authLogin = (state, payload) => {
 };
 
 const checkAuth = (state, payload) => {
-    console.log('Checking auth...');
+    // console.log('Checking auth...');
     // console.log(payload);
 
     const isAuthenticated = (payload && payload.isAuthenticated ? payload.isAuthenticated : !!localStorage.getItem('access_token'));

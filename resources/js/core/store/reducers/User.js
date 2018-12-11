@@ -1,6 +1,5 @@
 import User from '../../models/User'
 import * as ActionTypes from '../action-types'
-import Http from '../../utils/Http'
 
 const initialState = Object.assign({}, new User({}))
 

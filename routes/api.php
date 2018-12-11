@@ -11,6 +11,7 @@
 |
 */
 
+
 Route::group(['prefix' => 'password'], function() {
     Route::post('create', 'Auth\PasswordResetController@create');
     Route::post('reset', 'Auth\PasswordResetController@reset');
@@ -31,13 +32,23 @@ Route::group(['prefix'=> 'auth'], function() {
 });
 
 Route::group(['middleware'=> 'auth:api'], function() {
+    
+    // User routes
+    Route::get('/users/search/', 'API\UserController@searchUsers');
     Route::resource('users', 'API\UserController');
+    // Me routes
+    Route::get('me', 'API\MeController@index');
+    Route::post('me/updateAvatar', 'API\MeController@updateAvatar');
+    
+
     Route::resource('roles', 'API\RoleController');
     Route::resource('permissions', 'API\PermissionController');
+
+    Route::post('/sendMessage', 'API\ChatController@sendMessage');
+    
 });
 
 Route::post('/resend-email-verification','Auth\VerificationController@resend');
-
 
 // Route::group(['prefix'=> 'users', 'middleware' => 'auth:api'], function() {
 //     // Route::match(['put', 'patch'], '/{id}', 'Api\UserController@update')->name('users.update');

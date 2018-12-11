@@ -10,12 +10,21 @@ A Laravel Boilerplate for Reactjs (16) and Laravel (5.7) with passport and socia
 3. In command line :
    - `composer update`
    - `php artisan key:generate`
+   - `php artisan notifications:table`
    - `php artisan migrate`
    - `php artisan db:seed`
+   - `php artisan storage:link`
          - (if you want to have an admin account. email: admin@luna.test | pass: secret)
    - `php artisan passport:install`
-4. `npm install`
-5. `npm run dev` or `npm run watch`
+   - `npm install`
+4. Install "Laravel Echo Server" by typing in command line:
+   - `npm install -g laravel-echo-server`
+5. In command line:
+   - `laravel-echo-server init`
+   - `laravel-echo-server start`
+   - Set up laravel-echo-server.json config
+6. `php artisan queue:work`
+7. `npm run dev` or `npm run watch`
 
 ##### Update the Passport keys in .env file
 Copy the keys for personal and password grants in `.env` file

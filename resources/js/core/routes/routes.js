@@ -25,9 +25,9 @@ import NoMatch          from '../modules/noMatch' //404 page not found
 // component app routes
 const ComponentAppRoutes = () => {
     try {
-     return require('../../app/routes').default;
+        return require('../../app/routes').default;
     } catch (err) {
-     return [];
+        return [];
     }
 };
 

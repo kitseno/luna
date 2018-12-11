@@ -10,6 +10,7 @@ use App\Http\Resources\UserCollection;
 
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\DeleteUserRequest;
 
 use App\Http\Requests\ChangeUserProfile;
 use Illuminate\Auth\Events\Registered;
@@ -34,14 +35,11 @@ class UserController extends Controller
                     ->with(['tokens' => function ($q) {
                         $q->where('revoked', false);
                     }])
+                    ->orderBy('id', 'desc')
                     ->withTrashed()
                     ->paginate(10);
 
-        $activeUsers = User::whereHas('tokens', function ($q) {
-                        $q->where('revoked', false);
-                    })->get();
-
-        return new UserCollection($data, $activeUsers);
+        return new UserCollection($data, User::getActiveUsers(), User::getTotalUsersCount(), User::getNewUsersToday()); 
     }
 
     /**
@@ -52,11 +50,22 @@ class UserController extends Controller
      */
     public function store(CreateUserRequest $request)
     {
-        return User::createUserWithProfile($request->all())
-                // Send user registered notification
-                ->sendUserRegisteredNotification()
-                // return response
-                ->sendResponse();
+
+        // Try creating new user
+        $newUser = User::createUserWithProfile($request->all());
+
+        // Event new registered user
+        event(new Registered($newUser));
+        // Send user registered notification
+        $newUser->sendUserRegisteredNotification();
+
+        // Check if user need to verify email if not app will try to login the new user
+        if (config('access.users.verify_email')) {
+            // Send Email for Verification
+            $newUser->sendEmailVerificationNotification();
+        }
+
+        return $newUser->sendResponse();
     }
 
     /**
@@ -104,15 +113,12 @@ class UserController extends Controller
                 case 'updateUser':
                     
                     return $user->updateUser($request)->sendResponse();
-                    // return $user->sendResponse();
                 break;
 
                 case 'restoreUser':
-                    if ($request->user()->can('Restore User')) {
-                        $user->restore();
 
-                        return $user->sendResponse();
-                    }
+                    $user->restore();
+                    return $user->sendResponse(__('api.user.success.restore', ['first_name' => $user->first_name]));
                 break;
 
                 case 'revokeUserAccess':
@@ -121,7 +127,7 @@ class UserController extends Controller
                     foreach ($user->tokens as $token) {
                         $token->revoke();
                     }
-                    return $user->sendResponse();
+                    return $user->sendResponse(__('api.user.success.revoke', ['first_name' => $user->first_name]));
                     // return $user->sendResponse();
                 break;
             }
@@ -134,17 +140,38 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id, DeleteUserRequest $request)
     {
         //
-        if ($request->user()->can('Delete User')) {
-            if ($user = User::findOrFail($id) ) {
-                if ($user->delete()) {
-                    return $user->sendResponse();
-                }
-            }
+        if ($user = User::findOrFail($id) ) {
+            $user->delete();
+            return $user->sendResponse(__('api.user.success.delete', ['first_name' => $user->first_name]));
         }
+    }
 
-        
+    /**
+     * Search Users using Scout index
+     *
+     * @param  string  $keyword
+     * @return \Illuminate\Http\Response
+     */
+    public function searchUsers(Request $request)
+    {
+        //
+        $ids = collect(User::search($request->q)->take(500)->get())->pluck('id');
+
+        $data = User::orderBy('created_at', 'desc')
+                    ->whereIn('id', $ids)
+                    ->whereHas('roles', function ($q) {
+                        $q->where('name', '<>', 'Super-admin');
+                    })
+                    ->with('roles')
+                    ->with(['tokens' => function ($q) {
+                        $q->where('revoked', false);
+                    }])
+                    ->withTrashed()
+                    ->paginate(10);
+
+        return new UserCollection($data, User::getActiveUsers(), User::getTotalUsersCount(), User::getNewUsersToday()); 
     }
 }

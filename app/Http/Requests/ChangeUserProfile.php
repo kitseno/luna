@@ -32,7 +32,8 @@ class ChangeUserProfile extends FormRequest
         $rules = [];
 
         $change_name_rules = [
-            'name' => 'required|min:5|max:255',
+            'first_name' => 'required|min:1|max:255',
+            'last_name' => 'required|min:1|max:255',
         ];
 
         $change_email_rules = [

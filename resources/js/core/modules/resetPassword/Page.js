@@ -163,7 +163,7 @@ class Page extends React.Component {
                                     >
                                         <InputGroup value={this.state.credentials.password_confirmation} type="password" large className={errors.has('password_confirmation') && 'bp3-intent-danger'} id="password_confirmation" name="password_confirmation" placeholder="Confirm Password" disabled={this.state.isLoading} onChange={this.handleChange} />
                                     </FormGroup>
-                                    <Button fill intent="primary" type="submit" className="mt-4" loading={this.state.isLoading}>Change Password</Button>
+                                    <Button fill intent="primary" type="submit" className="mt-4 bg-primary" loading={this.state.isLoading}>Change Password</Button>
                                     {(this.state.responseError.isError && this.state.responseError.message && !this.state.responseError.errors) && <Callout className="mt-1" intent="danger">
                                         {this.state.responseError.message}
                                     </Callout>}

@@ -16,7 +16,6 @@ import { Toast } from '../../common/toaster'
 
 import ability from '../../utils/casl/ability'
 
-
 class Page extends React.Component {
 
     constructor(props) {
@@ -65,14 +64,14 @@ class Page extends React.Component {
         });
 
         // Display email verification success
-        const {search} = this.props.location;
-        const status = search.replace("?","").split("&")[0].split("=");
+        const url = new URL(document.location);
+        status = url.searchParams.get("status");
 
-        if (status[0] == 'email_verification_success') {
+        if (status == 'email_verification_success') {
             this.props.history.push('/login');
-            this.setState({emailVerificationSuccess: status[1]});
-        } else if (status[0] == 'token_invalid') {
-            this.setState({emailVerificationTokenInvalid: status[1]});
+            this.setState({emailVerificationSuccess: true});
+        } else if (status == 'token_invalid') {
+            this.setState({emailVerificationTokenInvalid: true});
             this.props.history.push('/login');
         }
     }
@@ -126,8 +125,8 @@ class Page extends React.Component {
 
                 // Update ability of user based on permissions
                 ability.update(res.user.scopes)
-
-              Toast.show({message: "You\'re logged in, "+res.user.name+"!", icon: "tick", intent: "success"});
+                Toast.show({message: "You\'re logged in, "+res.user.first_name+"!", icon: "tick", intent: "success"});
+                
             })
             .catch(({error, statusCode}) => {
 
@@ -215,7 +214,7 @@ class Page extends React.Component {
                                     >
                                         <InputGroup large className={errors.has('password') && 'bp3-intent-danger'} id="password" name="password" placeholder="Password" disabled={this.state.isLoading} onChange={this.handleChange} type="password" />
                                     </FormGroup>
-                                    <Button fill intent="primary" type="submit" loading={this.state.isLoading}>Sign in</Button>
+                                    <Button fill intent="primary" className="bg-primary" type="submit" loading={this.state.isLoading}>Sign in</Button>
                                     {
                                         this.state.responseError.isError &&
                                         <Callout className="mt-1" intent="danger">

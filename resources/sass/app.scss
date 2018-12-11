@@ -242,7 +242,7 @@ body {
 .left-sidebar {
 
     background-color: $clean-color;
-    width: 230px;
+    width: 200px;
     left: 0;
     position: absolute;
 
@@ -251,7 +251,7 @@ body {
       font-size: 0.8rem;
       font-weight: 100;
       line-height: 38px;
-      padding: 0 2rem;
+      padding: 0 1.4rem;
       background: transparent;
     }
 
@@ -306,7 +306,7 @@ body {
 section.content {
   position: relative;
   left: 0;
-  margin-left: 230px;
+  margin-left: 200px;
   min-height: 100%;
   padding: 2rem;
   font-size: 13px;

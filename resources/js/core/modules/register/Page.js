@@ -19,7 +19,8 @@ class Page extends React.Component {
         super(props);
 
         this.validator = new ReeValidate({
-            name: 'required|min:3',
+            first_name: 'required|min:1',
+            last_name: 'required|min:1',
             email: 'required|email',
             password: 'required|min:6',
             password_confirmation: 'required|min:6',
@@ -37,7 +38,8 @@ class Page extends React.Component {
 
         this.state = {
             credentials: {
-                name: '',
+                first_name: '',
+                last_name: '',
                 email: '',
                 password: '',
                 password_confirmation: ''
@@ -101,7 +103,8 @@ class Page extends React.Component {
                 });
 
                 const credentials = {
-                    name: '',
+                    first_name: '',
+                    last_name: '',
                     email: '',
                     password: '',
                     password_confirmation: ''
@@ -131,7 +134,8 @@ class Page extends React.Component {
                 });
 
                 const credentials = {
-                    name: this.state.credentials.name,
+                    first_name: this.state.credentials.first_name,
+                    last_name: this.state.credentials.last_name,
                     email: this.state.credentials.email,
                     password: '',
                     password_confirmation: ''
@@ -153,9 +157,10 @@ class Page extends React.Component {
             return <Redirect to='/' replace/>
         }
         const {errors} = this.state;
-        const { name, email, password, password_confirmation } = this.state.credentials;
+        const { first_name, last_name, email, password, password_confirmation } = this.state.credentials;
 
-        const name_error = errors.has('name') && errors.first('name');
+        const first_name_error = errors.has('first_name') && errors.first('first_name');
+        const last_name_error = errors.has('last_name') && errors.first('last_name');
         const email_error = errors.has('email') && errors.first('email');
         const password_error = errors.has('password') && errors.first('password');
         const cpassword_error = errors.has('password_confirmation') && errors.first('password_confirmation');
@@ -171,19 +176,29 @@ class Page extends React.Component {
                                 {
                                     this.state.responseError.isError &&
                                     <Callout intent="danger">
-                                        {this.state.responseError.errors.name && <p>{this.state.responseError.errors.name}</p>}
+                                        {this.state.responseError.errors.first_name && <p>{this.state.responseError.errors.first_name}</p>}
+                                        {this.state.responseError.errors.last_name && <p>{this.state.responseError.errors.last_name}</p>}
                                         {this.state.responseError.errors.password && <p>{this.state.responseError.errors.password}</p>}
                                         {this.state.responseError.errors.email && <p>{this.state.responseError.errors.email}</p>}
                                     </Callout>
                                 }
                                 <form>
                                     <FormGroup
-                                        helperText={name_error}
-                                        labelFor="name"
+                                        helperText={first_name_error}
+                                        labelFor="first_name"
                                         intent='danger'
                                         className="mb-1"
                                     >
-                                        <InputGroup large value={name} className={errors.has('name') && 'bp3-intent-danger'} id="name" name="name" placeholder="Name" disabled={this.state.isLoading} onChange={this.handleChange} />
+                                        <InputGroup large value={first_name} className={errors.has('first_name_error') && 'bp3-intent-danger'} id="first_name" name="first_name" placeholder="First name" disabled={this.state.isLoading} onChange={this.handleChange} />
+                                    </FormGroup>
+
+                                    <FormGroup
+                                        helperText={last_name_error}
+                                        labelFor="last_name"
+                                        intent='danger'
+                                        className="mb-1"
+                                    >
+                                        <InputGroup large value={last_name} className={errors.has('last_name_error') && 'bp3-intent-danger'} id="last_name" name="last_name" placeholder="Last name" disabled={this.state.isLoading} onChange={this.handleChange} />
                                     </FormGroup>
 
                                     <FormGroup
@@ -211,7 +226,7 @@ class Page extends React.Component {
                                     >
                                         <InputGroup large type="password" value={password_confirmation} className={errors.has('password_confirmation') && 'bp3-intent-danger'} id="password_confirmation" name="password_confirmation" placeholder="Confirm password" disabled={this.state.isLoading} onChange={this.handleChange} />
                                     </FormGroup>
-                                    <Button fill intent="primary" onClick={this.handleSubmit} loading={this.state.isLoading}>Sign up</Button>
+                                    <Button fill intent="primary" className="bg-primary" onClick={this.handleSubmit} loading={this.state.isLoading}>Sign up</Button>
                                     {this.state.isSuccess && <Callout className="mt-1" intent="success">
                                         <div dangerouslySetInnerHTML={{ __html: this.state.responseSuccess}}/>
                                     </Callout>}

@@ -8,11 +8,11 @@ class Profile extends Model
 {
     //
 
-		protected $table = 'profiles';
-		// protected $primaryKey = 'profile_id';
+    protected $table = 'profiles';
+    // protected $primaryKey = 'profile_id';
 
-		protected $fillable = [
-        'user_id', 'about',
+    protected $fillable = [
+    'user_id', 'about',
     ];
 
     public function user()

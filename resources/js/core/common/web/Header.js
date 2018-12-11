@@ -13,12 +13,10 @@ class PageHeader extends React.Component {
 
     constructor(props) {
         super(props);
-        
-        this.handleLogout = this.handleLogout.bind(this);
     }
 
-    handleLogout() {
-        event.preventDefault();
+    handleLogout = (e) => {
+        e.preventDefault();
         // this.props.dispatch(actions.authLogout());
         this.props.dispatch(logout());
         Toast.show({ message: "See you later, old friend.", icon: "hand", intent: "warning"});
@@ -29,7 +27,7 @@ class PageHeader extends React.Component {
 
         this.avatar = (
             <span>
-              <img className="mr-2 align-text-bottom" style={{width: '20px'}} src={require('../../../../assets/images/avatar/boy.png')}/>
+              <img className="mr-2 align-text-bottom rounded-circle" style={{width: '20px'}} src={this.props.userAvatar}/>
               <small className="mr-2 align-text-bottom">{this.props.userName}</small>
             </span>
         );
@@ -80,8 +78,9 @@ const mapStateToProps = state => {
     return {
         isAuthenticated : state.Auth.isAuthenticated,
         isAdmin : state.Auth.isAdmin,
-        userName : state.Auth.user.name,
+        userName : state.Auth.user.first_name,
         userEmail : state.Auth.user.email,
+        userAvatar : '/avatars/'+state.Auth.user.avatar,
     }
 };
 

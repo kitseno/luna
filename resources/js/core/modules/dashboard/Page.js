@@ -3,10 +3,17 @@ import PropTypes from 'prop-types'
 
 import Admin from '../../layouts/admin'
 
-
 class Page extends React.Component {
     constructor(props) {
         super(props);
+    }
+
+    componentDidMount() {
+        
+    }
+
+    componentWillUnmount() {
+        
     }
 
     render() {

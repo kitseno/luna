@@ -161,11 +161,12 @@ export function removeUser(id) {
             Http.delete(`/api/users/${id}`)
                 .then(res => {
                     // console.log(res.data);
-                    return resolve(res.data.user);
+                    return resolve(res.data);
                 })
                 .catch(err => {
                     
                     const statusCode = err.response.status;
+
                     const data = {
                         error: null,
                         statusCode,
@@ -175,6 +176,7 @@ export function removeUser(id) {
                         // status 422 means unprocessable entity
                         data.error = err.response.data;
                     }
+
                     return reject(data);
                 })
         })
@@ -189,11 +191,12 @@ export function restoreUser(id) {
             Http.put(`/api/users/${id}`, {method: 'restoreUser'})
                 .then( res => {
                     // console.log(res.data);
-                    return resolve(res.data.user);
+                    return resolve(res.data);
                 })
                 .catch( err => {
                     
                     const statusCode = err.response.status;
+
                     const data = {
                         error: null,
                         statusCode,
@@ -203,7 +206,6 @@ export function restoreUser(id) {
                         // status 422 means unprocessable entity
                         data.error = err.response.data;
                     }
-                    console.log(data);
                     return reject(data);
                 })
         })
@@ -235,4 +237,34 @@ export function revokeUserAccess(id) {
                 })
         })
     )
+}
+
+export function search(keyword) {
+
+    const now = new Date().getTime();
+
+    return dispatch => (
+        new Promise((resolve, reject) => {
+            Http.get('/api/users/search?q='+keyword+'&t='+now)
+                .then(res => {
+                    // console.log(res);
+                    // dispatch(action.authLogin(res.data));
+                    return resolve(res.data);
+                })
+                .catch(err => {
+                    const statusCode = err.response.status;
+                    const data = {
+                        error: null,
+                        statusCode,
+                    };
+                    if (statusCode === 401 || statusCode === 422) {
+                        // status 401 means unauthorized
+                        // status 422 means unprocessable entity
+                        data.error = err.response.data.message;
+                    }
+                    return reject(data);
+                })
+        })
+    )
+
 }

@@ -17,14 +17,30 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Spatie\Permission\Models\Role;
 
 use GuzzleHttp\Client;
+use Laravel\Scout\Searchable;
+use Illuminate\Support\Str;
+
+use Spatie\Activitylog\Traits\LogsActivity;
+
 
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, Notifiable, HasRoles;
     use SoftDeletes;
+    use Searchable;
+
+    use LogsActivity;
+    protected static $logName = 'user';
+    protected static $recordEvents = ['deleted', 'updated', 'created'];
+    protected static $logAttributes = ['first_name', 'last_name', 'email', 'password', 'last_login_ip', 'deleted_at'];
 
     protected $guard_name = 'api';
+    public $asYouType = true;
+
+    protected $primaryKey = 'id';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     /**
      * The attributes that are mass assignable.
@@ -32,11 +48,15 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $fillable = [
-        'name',
+        'id',
+        'first_name',
+        'last_name',
         'email',
         'password',
+        'avatar',
         'email_verified_at',
         'timezone',
+        'provider',
         'last_login_at',
         'last_login_ip',
     ];
@@ -56,6 +76,16 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     protected $dates = ['deleted_at'];
+
+    public function toSearchableArray()
+    {
+        return [
+             'id' => $this->id,
+             'first_name' => $this->first_name,
+             'last_name' => $this->last_name,
+             'email' => $this->email,
+        ];
+    }
 
 
     /* start of eloquent relationships */
@@ -94,7 +124,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function changeName($request)
     {
 
-        $this->update(['name' => $request->name]);
+        $this->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name
+        ]);
 
 
         return $this;
@@ -103,7 +136,8 @@ class User extends Authenticatable implements MustVerifyEmail
     public function updateUser($request) {
 
         $this->update([
-            'name' => $request->name,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
             'email' => $request->email,
         ]);
 
@@ -114,13 +148,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /* send response */
 
-    public function sendResponse()
+    public function sendResponse($message = null)
     {
 
         $statusCode = ($this ? 200 : 422);
 
 
-        return response()->json(['user' => $this], $statusCode);
+        return response()->json(['user' => $this, 'message' => $message], $statusCode);
     }
 
     /*
@@ -151,9 +185,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
 
         $user = self::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
+            'id'            => (string) Str::orderedUuid(),
+            'first_name'    => $data['first_name'],
+            'last_name'     => $data['last_name'],
+            'email'         => $data['email'],
+            'password'      => bcrypt($data['password']),
             'email_verified_at' => (config('access.users.verify_email')) ? null : now(),
         ]);
 
@@ -168,6 +204,46 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return $user;
 
+    }
+
+    /**
+     * Get active users
+     */
+
+    public static function getActiveUsers()
+    {
+        return self::whereHas('tokens', function ($q) {
+            $q->where('revoked', false);
+        })
+        ->whereHas('roles', function ($q) {
+            $q->where('name', '<>', 'Super-admin');
+        })
+        ->count();
+    }
+
+    /**
+     * Get total users count
+     */
+
+    public static function getTotalUsersCount()
+    {
+        return self::whereHas('roles', function ($q) {
+            $q->where('name', '<>', 'Super-admin');
+        })
+        ->count();
+    }
+
+    /**
+     * Get new users
+     */
+
+    public static function getNewUsersToday()
+    {
+        return self::whereHas('roles', function ($q) {
+            $q->where('name', '<>', 'Super-admin');
+        })
+        ->whereDate('created_at', date('Y-m-d'))
+        ->count();
     }
 
     /**
@@ -199,7 +275,9 @@ class User extends Authenticatable implements MustVerifyEmail
             $user_array = [
                 'id'            => $this->id,
                 'email'         => $this->email,
-                'name'          => $this->name,
+                'first_name'    => $this->first_name,
+                'last_name'     => $this->last_name,
+                'avatar'        => $this->avatar,
                 'created_at'    => date($this->created_at),
                 'updated_at'    => date($this->updated_at),
                 'deleted_at'    => date($this->deleted_at),

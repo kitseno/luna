@@ -19,6 +19,8 @@ yarn-error.log
 
 /resources/js/app/*
 /component/*
+laravel-echo-server.json
+/storage/*.index
 
 .DS_Store
 **/.DS_Store

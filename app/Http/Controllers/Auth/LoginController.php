@@ -9,6 +9,9 @@ use App\Http\Requests\LoginRequest;
 
 use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+
 use App\User;
 use App\Profile;
 
@@ -55,6 +58,12 @@ class LoginController extends Controller
         // Event user logged in
         event(new UserLogin($user));
 
+        // Log activity
+        activity('login')
+            ->performedOn($user)
+            ->causedBy($user)
+            ->log('('.$user->id.') '.$user->first_name.' has successfully logged in.');
+
         return response()->json([
               'user' => $userLogin['data'],
               'token'=> $userLogin['token'],
@@ -86,6 +95,8 @@ class LoginController extends Controller
 
             if ($social == "graph") {
                 $scopes = ['User.Read.All', 'Calendars.Read', 'Mail.Read'];
+            } else if ($social == "facebook") {
+                $scopes = ['public_profile'];
             }
 
             return Socialite::with($social)
@@ -100,7 +111,23 @@ class LoginController extends Controller
     public function handleProviderCallback($social)
     {
         if ($social == "facebook" || $social == "google" || $social == "linkedin" || $social == "graph") {
-            $userSocial = Socialite::with($social)->stateless()->user();
+
+            $fields = [];
+
+            if ($social == "facebook") {
+                $fields = [
+                    'name',
+                    'first_name',
+                    'last_name',
+                    'email',
+                ];
+            }
+
+            $userSocial = Socialite::with($social)
+                                    ->fields($fields)
+                                    ->stateless()
+                                    ->user();
+
         } else {
             $userSocial = Socialite::with($social)->user();
         }
@@ -110,9 +137,25 @@ class LoginController extends Controller
         $user = User::firstOrNew(['email' => $userSocial->getEmail()]);
 
         if (!$user->id) {
+
+            // Update avatar
+            $avatar = file_get_contents($userSocial->getAvatar());
+            $avatarExtension = image_type_to_extension(getimagesize($userSocial->getAvatar())[2]);
+            $avatarName = $userSocial->id.'_avatar'.time().$avatarExtension;
+
+            // Delete previous avatar
+            Storage::delete('avatars/'.$user->avatar);
+
+            // $avatar->storeAs('avatars', $avatarName);
+            Storage::disk('local')->put('public/avatars/'.$avatarName, $avatar);
+
             $user->fill([
-                "name" => $userSocial->getName(),
-                "password"=>bcrypt(str_random(6))
+                "id"                => (string) Str::orderedUuid(),
+                "first_name"        => $userSocial->user['first_name'],
+                "last_name"         => $userSocial->user['last_name'],
+                "avatar"            => $avatarName,
+                "provider"          => $social,
+                "password"          => bcrypt(str_random(6))
             ]);
 
             // Save user social

@@ -18,6 +18,7 @@ import Pagination from "react-js-pagination"
 import moment from "moment"
 
 import { Toast } from '../../common/toaster'
+import NumberFormat from '../../common/NumberFormat'
 
 class Page extends React.Component {
 
@@ -28,7 +29,7 @@ class Page extends React.Component {
 
         for (var i = 0; i < 10; i++) {
           var random = [...Array(10)].map(i=>(~~(Math.random()*36)).toString(36)).join('');
-          users.push({ id: 1, name: random, email: random });
+          users.push({ id: 1, first_name: random, last_name: random, email: random });
         }
 
         this.state = {
@@ -44,6 +45,7 @@ class Page extends React.Component {
             restoreUserName: null,
             createUserError: null,
             togglePassword: true,
+            searchResult: [],
 
             roles: [],
 
@@ -70,10 +72,13 @@ class Page extends React.Component {
     fetchUsers(page = '') {
 
         const { dispatch } = this.props
-        if (page) this.props.history.push('?page='+page);
 
-        const { search } = this.props.history.location
-        if (search) page = search.split('=')[1];
+        const url = new URL(document.location);
+
+        if (page) url.searchParams.set("page", page);
+        page = url.searchParams.get("page");
+
+        history.pushState(null, '', url.href);
 
         this.setState({ loading: true });
 
@@ -85,6 +90,8 @@ class Page extends React.Component {
                     this.setState({
                         users: result.data.data,
                         activeUsers: result.data.meta.activeUsers,
+                        totalUsers: result.data.meta.totalUsers,
+                        newUsersToday: result.data.meta.newUsersToday,
                         pagination: {
                             links: result.links,
                             meta: result.meta,
@@ -116,10 +123,26 @@ class Page extends React.Component {
                 // console.log(res);
                 this.fetchUsers();
                 this.dialogClose();
-                Toast.show({message: "Successfully removed "+res.name+"!", icon: "trash", intent: "warning"});
+                Toast.show({message: res.message, icon: "trash", intent: "success"});
             })
             .catch( ({error, statusCode}) => {
-                console.log(error)
+                this.dialogClose();
+                Toast.show({message: error.message, icon: "trash", intent: "warning"});
+            })
+    }
+
+    restoreUser(id) {
+        const { dispatch } = this.props
+
+        dispatch(UserService.restoreUser(id))
+            .then( (res) => {
+                this.fetchUsers();
+                this.restoreDialogClose();
+                Toast.show({message: res.message, icon: "tick", intent: "success"});
+            })
+            .catch( ({error, statusCode}) => {
+                this.restoreDialogClose();
+                Toast.show({message: error.message, icon: "cross", intent: "warning"});
             })
     }
 
@@ -132,10 +155,10 @@ class Page extends React.Component {
                 // console.log(res);
                 this.fetchUsers();
                 this.setState({revokeDialog: false})
-                Toast.show({message: "Successfully revoked access for "+res.name+"!", icon: "log-out", intent: "success"});
+                Toast.show({message: "Successfully revoked access for "+res.first_name+"!", icon: "log-out", intent: "success"});
             })
             .catch( ({error, statusCode}) => {
-                console.log(error)
+                Toast.show({message: error.message, icon: "cross", intent: "warning"});
             })
     }
 
@@ -180,7 +203,7 @@ class Page extends React.Component {
 
                 this.fetchUsers();
                 this.setState({createUserDialogShown: false});
-                Toast.show({message: "Successfully created new user "+res.user.name+" ("+res.user.email+").", icon: "tick", intent: "success"});
+                Toast.show({message: "Successfully created new user "+res.user.first_name+" ("+res.user.email+").", icon: "tick", intent: "success"});
             })
             .catch(({error, statusCode}) => {
                 
@@ -214,7 +237,7 @@ class Page extends React.Component {
 
                 this.fetchUsers();
                 this.setState({editUserDialogShown: false});
-                Toast.show({message: "Successfully updated new user "+res.user.name+" ("+res.user.email+").", icon: "tick", intent: "success"});
+                Toast.show({message: "Successfully updated new user "+res.user.first_name+" ("+res.user.email+").", icon: "tick", intent: "success"});
             })
             .catch(({error, statusCode}) => {
                 
@@ -229,7 +252,7 @@ class Page extends React.Component {
 
     openEditUserDialog(user) {
         this.setState({editUserForm: user}, () => {
-            console.log(user);
+
             const { dispatch } = this.props
 
             dispatch(RoleService.getRoles())
@@ -245,19 +268,45 @@ class Page extends React.Component {
         });
     }
 
-    restoreUser(id) {
-        const { dispatch } = this.props
+    // Handle Search
 
-        dispatch(UserService.restoreUser(id))
-            .then( (res) => {
+    handleSearch = (keyword) => { 
+        
+        this.setState({ loading: true });
+
+        this.props
+        .dispatch(UserService.search(keyword))
+            .then((res)  => {
                 // console.log(res);
-                this.fetchUsers();
-                this.restoreDialogClose();
-                Toast.show({message: "Successfully restored "+res.name+"!", icon: "tick", intent: "success"});
+
+                this.setState({
+                    users: res.data.data,
+                    activeUsers: res.data.meta.activeUsers,
+                    totalUsers: res.data.meta.totalUsers,
+                    newUsersToday: res.data.meta.newUsersToday,
+                    pagination: {
+                        links: res.links,
+                        meta: res.meta,
+                    }
+                }, function () {
+                    this.setState({ loading: false });
+                });
+
             })
-            .catch( (err) => {
-                console.log(err)
+            .catch(({error, statusCode}) => {
+                
+                if (statusCode == 403) {
+                    Toast.show({message: error.message, icon: "warning", intent: "warning"});
+                } else if (statusCode == 422) {
+                    //
+                }
+
             })
+        
+        if (keyword.length == 0) {
+            this.fetchUsers();
+        }
+    
     }
 
     dialogClose() {
@@ -283,12 +332,21 @@ class Page extends React.Component {
                         <div className="row">
                             <div className="col-7">
                                 <FormGroup
-                                    helperText={this.state.createUserError && this.state.createUserError.name}
-                                    labelFor="name"
+                                    helperText={this.state.createUserError && this.state.createUserError.first_name}
+                                    labelFor="first_name"
                                     intent='danger'
                                     className="mb-1"
                                 >
-                                    <InputGroup intent={(this.state.createUserError && this.state.createUserError.name? 'danger':'')} id="name" name="name" placeholder="Name (required)" />
+                                    <InputGroup intent={(this.state.createUserError && this.state.createUserError.first_name? 'danger':'')} id="first_name" name="first_name" placeholder="First name (required)" />
+                                </FormGroup>
+
+                                <FormGroup
+                                    helperText={this.state.createUserError && this.state.createUserError.last_name}
+                                    labelFor="last_name"
+                                    intent='danger'
+                                    className="mb-1"
+                                >
+                                    <InputGroup intent={(this.state.createUserError && this.state.createUserError.last_name? 'danger':'')} id="last_name" name="last_name" placeholder="Last name (required)" />
                                 </FormGroup>
 
                                 <FormGroup
@@ -351,7 +409,7 @@ class Page extends React.Component {
                     <div className="bp3-dialog-footer">
                         <div className="bp3-dialog-footer-actions">
                             <button type="submit" className="bp3-button">Submit</button>
-                            <button type="button" className="bp3-button bp3-intent-primary" onClick={ () => {this.setState({createUserDialogShown: false})} }>Cancel</button>
+                            <button type="button" className="bp3-button bp3-intent-primary bg-primary" onClick={ () => {this.setState({createUserDialogShown: false})} }>Cancel</button>
                         </div>
                     </div>
                 </form>
@@ -372,12 +430,21 @@ class Page extends React.Component {
                         <div className="row">
                             <div className="col-7">
                                 <FormGroup
-                                    helperText={this.state.editUserError && this.state.editUserError.name}
-                                    labelFor="name"
+                                    helperText={this.state.editUserError && this.state.editUserError.first_name}
+                                    labelFor="first_name"
                                     intent='danger'
                                     className="mb-1"
                                 >
-                                    <InputGroup defaultValue={this.state.editUserForm.name} intent={(this.state.editUserError && this.state.editUserError.name? 'danger':'')} id="name" name="name" placeholder="Name (required)" />
+                                    <InputGroup defaultValue={this.state.editUserForm.first_name} intent={(this.state.editUserError && this.state.editUserError.first_name? 'danger':'')} id="first_name" name="first_name" placeholder="First name (required)" />
+                                </FormGroup>
+
+                                <FormGroup
+                                    helperText={this.state.editUserError && this.state.editUserError.last_name}
+                                    labelFor="last_name"
+                                    intent='danger'
+                                    className="mb-1"
+                                >
+                                    <InputGroup defaultValue={this.state.editUserForm.last_name} intent={(this.state.editUserError && this.state.editUserError.last_name? 'danger':'')} id="last_name" name="last_name" placeholder="Last name (required)" />
                                 </FormGroup>
 
                                 <FormGroup
@@ -441,7 +508,7 @@ class Page extends React.Component {
                     <div className="bp3-dialog-footer">
                         <div className="bp3-dialog-footer-actions">
                             <button type="submit" className="bp3-button">Submit</button>
-                            <button type="button" className="bp3-button bp3-intent-primary" onClick={ () => {this.setState({editUserDialogShown: false})} }>Cancel</button>
+                            <button type="button" className="bp3-button bp3-intent-primary bg-primary" onClick={ () => {this.setState({editUserDialogShown: false})} }>Cancel</button>
                         </div>
                     </div>
                 </form>
@@ -461,7 +528,7 @@ class Page extends React.Component {
                 <div className="bp3-dialog-footer">
                     <div className="bp3-dialog-footer-actions">
                         <button type="button" className="bp3-button" onClick={ () => {this.removeUser(this.state.removeUserId)} }>Remove</button>
-                        <button type="submit" className="bp3-button bp3-intent-primary" onClick={ () => {this.dialogClose()} }>Cancel</button>
+                        <button type="submit" className="bp3-button bp3-intent-primary bg-primary" onClick={ () => {this.dialogClose()} }>Cancel</button>
                     </div>
                 </div>
             </Dialog>
@@ -480,7 +547,7 @@ class Page extends React.Component {
                 <div className="bp3-dialog-footer">
                     <div className="bp3-dialog-footer-actions">
                         <button type="button" className="bp3-button" onClick={ () => {this.revokeUserAccess(this.state.revokeUserId)} }>Revoke</button>
-                        <button type="submit" className="bp3-button bp3-intent-primary" onClick={ () => {this.setState({revokeDialog: false, revokeUserName: null, revokeUserId: null})} }>Cancel</button>
+                        <button type="submit" className="bp3-button bp3-intent-primary bg-primary" onClick={ () => {this.setState({revokeDialog: false, revokeUserName: null, revokeUserId: null})} }>Cancel</button>
                     </div>
                 </div>
             </Dialog>
@@ -499,7 +566,7 @@ class Page extends React.Component {
                 <div className="bp3-dialog-footer">
                     <div className="bp3-dialog-footer-actions">
                         <button type="button" className="bp3-button" onClick={ () => {this.restoreUser(this.state.restoreUserId)} }>Restore</button>
-                        <button type="submit" className="bp3-button bp3-intent-primary" onClick={ () => {this.restoreDialogClose()} }>Cancel</button>
+                        <button type="submit" className="bp3-button bp3-intent-primary bg-primary" onClick={ () => {this.restoreDialogClose()} }>Cancel</button>
                     </div>
                 </div>
             </Dialog>
@@ -518,7 +585,7 @@ class Page extends React.Component {
                         <div className="card shadow-sm">
                             <div className="card-body">
                                 <h6>Total Users</h6>
-                                <h3 className={this.state.pagination.meta ? 'text-muted' : 'd-inline bp3-skeleton'}>{this.state.pagination.meta ? this.state.pagination.meta.total : '--'}</h3>
+                                <h3 className={this.state.totalUsers ? 'text-muted' : 'd-inline bp3-skeleton'}>{this.state.totalUsers ? <NumberFormat>{this.state.totalUsers}</NumberFormat> : '--'}</h3>
                             </div>
                         </div>
                     </div>
@@ -527,7 +594,7 @@ class Page extends React.Component {
                         <div className="card shadow-sm">
                             <div className="card-body">
                                 <h6>New Users</h6>
-                                <h3 className="text-muted">-</h3>
+                                <h3 className="text-muted">{this.state.newUsersToday ? <NumberFormat>{this.state.newUsersToday}</NumberFormat> : '-'}</h3>
                             </div>
                         </div>
                     </div>
@@ -536,7 +603,7 @@ class Page extends React.Component {
                         <div className="card shadow-sm">
                             <div className="card-body">
                                 <h6>Active Users</h6>
-                                <h3 className="text-muted">{this.state.activeUsers ? this.state.activeUsers : '-'}</h3>
+                                <h3 className="text-muted">{this.state.activeUsers ? <NumberFormat>{this.state.activeUsers}</NumberFormat> : '-'}</h3>
                             </div>
                         </div>
                     </div>
@@ -547,9 +614,10 @@ class Page extends React.Component {
                     <h5>Users{this.state.loading && <i className="fas fa-spinner fa-spin text-muted fa-xs ml-2"></i>}</h5>
                     <div className="bp3-input-group float-left">
                       <span className="bp3-icon bp3-icon-search"></span>
-                      <input className="bp3-input" type="text" placeholder="Search user" dir="auto" />
+                      <input className="bp3-input" type="text" placeholder="Search user" dir="auto" onChange={ (e) => this.handleSearch(e.target.value) } />
                     </div>
-                    <Button className="float-right ml-2" intent="primary" onClick={this.showCreateUserDialog.bind(this)}>Create User</Button>
+                    <span className="text-muted float-left mt-1 ml-2">search result {this.state.pagination.meta ? <NumberFormat>{this.state.pagination.meta.total}</NumberFormat> : ''}</span>
+                    <Button className="float-right ml-2 bg-primary" intent="primary" onClick={this.showCreateUserDialog.bind(this)}>Create User</Button>
                 </div>
 
                 <div className="card shadow-sm">
@@ -560,8 +628,8 @@ class Page extends React.Component {
                         <table className="table table-sm table-hover table-striped mb-0">
                             <thead>
                                 <tr>
-                                    <th><span className={this.state.loading ? 'bp3-skeleton' : ''}>ID</span></th>
-                                    <th><span className={this.state.loading ? 'bp3-skeleton' : ''}>Name</span></th>
+                                    <th><span className={this.state.loading ? 'bp3-skeleton' : ''}>First name</span></th>
+                                    <th><span className={this.state.loading ? 'bp3-skeleton' : ''}>Last name</span></th>
                                     <th><span className={this.state.loading ? 'bp3-skeleton' : ''}>Email</span></th>
                                     <th><span className={this.state.loading ? 'bp3-skeleton' : ''}>Roles</span></th>
                                     <th><span className={this.state.loading ? 'bp3-skeleton' : ''}>Date/time added</span></th>
@@ -573,8 +641,8 @@ class Page extends React.Component {
                             {this.state.users && this.state.users.map((user, key) => {
                                 return (
                                     <tr key={key}>
-                                        <td><span className={this.state.loading ? 'bp3-skeleton' : ''}>{user.id}</span></td>
-                                        <td><span className={this.state.loading ? 'bp3-skeleton' : ''}>{ user.deleted_at ? <span className="text-muted"><del>{user.name}</del> (removed)</span> : user.name }</span></td>
+                                        <td><span className={this.state.loading ? 'bp3-skeleton' : ''}>{ user.deleted_at ? <span className="text-muted"><del>{user.first_name}</del> (removed)</span> : user.first_name }</span></td>
+                                        <td><span className={this.state.loading ? 'bp3-skeleton' : ''}>{ user.deleted_at ? <span className="text-muted"><del>{user.last_name}</del> (removed)</span> : user.last_name }</span></td>
                                         <td><span className={this.state.loading ? 'bp3-skeleton' : ''}>{ user.deleted_at ? <span className="text-muted"><del>{user.email}</del></span> : user.email}</span></td>
                                         <td><span className={this.state.loading ? 'bp3-skeleton' : ''}>{ user.roles && user.roles.map((role, key) => {
                                             return (<span key={key}>{role.name }</span>);
@@ -582,9 +650,9 @@ class Page extends React.Component {
                                         <td><span className={this.state.loading ? 'bp3-skeleton' : ''}>{moment(user.created_at).utcOffset(-8).format('MMMM DD, YYYY hh:mma')}</span></td>
                                         <td>
                                             <Button icon="edit" onClick={() => this.openEditUserDialog(user)} className={this.state.loading ? 'bp3-skeleton' : ''}></Button>
-                                            {(user.tokens && user.tokens[0]) && <Button intent="warning" className={(user.deleted_at ? 'd-none' : '') +" "+ (this.state.loading ? 'bp3-skeleton' : '')} icon="log-out" onClick={() => { this.showRevokeDialog(user.id, user.name) }}></Button>}
-                                            <Button intent="danger" className={(user.deleted_at ? 'd-none' : '') +" "+ (this.state.loading ? 'bp3-skeleton' : '')} icon="trash" onClick={() => { this.showRemoveDialog(user.id, user.name) }}></Button>
-                                            <Button intent="primary" className={(user.deleted_at ? '' : 'd-none') +" "+ (this.state.loading ? 'bp3-skeleton' : '')} icon="redo" onClick={() => { this.showRestoreDialog(user.id, user.name) }}></Button>
+                                            {(user.tokens && user.tokens[0]) && <Button intent="warning" className={(user.deleted_at ? 'd-none' : '') +" "+ (this.state.loading ? 'bp3-skeleton' : '')} icon="log-out" onClick={() => { this.showRevokeDialog(user.id, user.first_name) }}></Button>}
+                                            <Button intent="danger" className={(user.deleted_at ? 'd-none' : '') +" "+ (this.state.loading ? 'bp3-skeleton' : '')} icon="trash" onClick={() => { this.showRemoveDialog(user.id, user.first_name) }}></Button>
+                                            <Button intent="primary" className={(user.deleted_at ? 'bg-primary' : 'd-none') +" "+ (this.state.loading ? 'bp3-skeleton' : '')} icon="redo" onClick={() => { this.showRestoreDialog(user.id, user.first_name) }}></Button>
                                         </td>
                                     </tr>
                                 )

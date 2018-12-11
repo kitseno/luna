@@ -13,7 +13,7 @@ class Page extends React.Component {
 
     handleLogout = (event) => {
         event.preventDefault();
-        // this.props.dispatch(actions.authLogout());
+        
         this.props.dispatch(logout());
         Toast.show({ message: "See you later, old friend.", icon: "hand", intent: "warning"});
     }
@@ -22,7 +22,7 @@ class Page extends React.Component {
 
         this.avatar = (
             <span>
-              <img className="mr-3 align-text-middle rounded-circle" style={{width: '35px', height: '35px'}} src={require('../../../../assets/images/avatar/kit2.jpg')}/>
+              <img className="mr-3 align-text-middle rounded-circle" style={{width: '32px', height: '32px'}} src={this.props.userAvatar}/>
               <small className="mr-2 align-text-middle">{this.props.userName}</small>
             </span>
         );
