@@ -50,8 +50,8 @@ window.io = require('socket.io-client');
 if (typeof io !== 'undefined') {
     window.Echo = new Echo({
         broadcaster: 'socket.io',
-        host: window.location.hostname + ':6001',
-        key: '2cbf124441136d8aef168ab62a57bbe1',
+        host: window.location.hostname + ':' + env('app.echo.port', 6001),
+        key: env('app.echo.key', ''),
         auth: {
             headers: {
                 Authorization: 'Bearer '+localStorage.getItem('access_token'),
