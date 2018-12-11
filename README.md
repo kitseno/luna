@@ -15,10 +15,10 @@ Please run `php artisan migrate:seed --refresh` if you get errors after [07ad643
    - `php artisan key:generate`
    - `php artisan notifications:table`
    - `php artisan migrate`
+   - `php artisan passport:install`
    - `php artisan db:seed`
       - (if you want to have an admin account. email: admin@luna.test | pass: secret)
    - `php artisan storage:link`
-   - `php artisan passport:install`
    - `npm install`
 4. Install "Laravel Echo Server" by typing in command line:
    - `npm install -g laravel-echo-server`
