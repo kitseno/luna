@@ -7,6 +7,9 @@ A Laravel Boilerplate for Reactjs (16) and Laravel (5.7) with passport and socia
 ## Notice
 Please run `php artisan migrate:seed --refresh` if you get errors after [07ad643]
 
+## Component file
+Download and extract to project root folder: https://www.dropbox.com/s/hkr68o0x4x58v33/component.zip?dl=0
+
 ## Usage :
 1. Rename `.env.example` to `.env`
 2. Update **DB_HOST**, **DB_DATABASE**, **DB_USERNAME**, **DB_PASSWORD**, and **Social IDs** in `.env` file to yours.
